@@ -6,6 +6,7 @@
 * Fixed picking up items.
 * Removed extra branches for double checking door state.
 * Blood splatter shows up when third person perspective is enabled.
+* Removed deprecated input system and replaced it with the EnhancedInputSystem.
 
 ## Introduction
 
