@@ -22,6 +22,7 @@
 #include "TimerManager.h"
 #include "UI/GSFloatingStatusBarWidget.h"
 #include "Weapons/GSWeapon.h"
+#include "EnhancedInputSubsystems.h"
 
 AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -106,15 +107,78 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AGSHeroCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AGSHeroCharacter::MoveRight);
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(PrimaryFireAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrimaryFire, true);
 
-	PlayerInputComponent->BindAxis("LookUp", this, &AGSHeroCharacter::LookUp);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AGSHeroCharacter::LookUpRate);
-	PlayerInputComponent->BindAxis("Turn", this, &AGSHeroCharacter::Turn);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AGSHeroCharacter::TurnRate);
+		EnhancedInputComponent->BindAction(PrimaryFireAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrimaryFire, false);
 
-	PlayerInputComponent->BindAction("TogglePerspective", IE_Pressed, this, &AGSHeroCharacter::TogglePerspective);
+		EnhancedInputComponent->BindAction(SecondaryFireAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::SecondaryFire, true);
+
+		EnhancedInputComponent->BindAction(SecondaryFireAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::SecondaryFire, false);
+
+		EnhancedInputComponent->BindAction(AlternateFireAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::AlternateFire, true);
+
+		EnhancedInputComponent->BindAction(AlternateFireAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::AlternateFire, false);
+
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Reload, true);
+
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Reload, false);
+
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Sprint, true);
+
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Sprint, false);
+
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Jump, true);
+
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Jump, false);
+
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Interact, true);
+
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Interact, false);
+
+		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Confirm, true);
+
+		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Confirm, false);
+
+		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Cancel, true);
+
+		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Cancel, false);
+
+		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::NextWeapon, true);
+
+		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::NextWeapon, false);
+
+		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrevWeapon, true);
+
+		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrevWeapon, false);
+
+		EnhancedInputComponent->BindAction(TogglePerspectiveAction, ETriggerEvent::Started, this, &AGSHeroCharacter::TogglePerspective);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Look);
+	}
 
 	// Bind player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
 	BindASCInput();
@@ -623,6 +687,21 @@ FSimpleMulticastDelegate* AGSHeroCharacter::GetTargetCancelInteractionDelegate(U
 	return &InteractionCanceledDelegate;
 }
 
+void AGSHeroCharacter::SendLocalInputToASC(bool IsPressed, const EGSAbilityInputID AbilityInputID)
+{
+	if (AbilitySystemComponent)
+	{
+		if (IsPressed)
+		{
+			AbilitySystemComponent->AbilityLocalInputPressed(static_cast<int32>(AbilityInputID));
+		}
+		else
+		{
+			AbilitySystemComponent->AbilityLocalInputReleased(static_cast<int32>(AbilityInputID));
+		}
+	}
+}
+
 /**
 * On the Server, Possession happens before BeginPlay.
 * On the Client, BeginPlay happens before Possession.
@@ -643,6 +722,14 @@ void AGSHeroCharacter::BeginPlay()
 	if (GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		ServerSyncCurrentWeapon();
+	}
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
 	}
 }
 
@@ -1068,6 +1155,48 @@ void AGSHeroCharacter::UnEquipCurrentWeapon()
 		PC->SetPrimaryClipAmmo(0);
 		PC->SetPrimaryReserveAmmo(0);
 		PC->SetHUDReticle(nullptr);
+	}
+}
+
+void AGSHeroCharacter::InvokeAbility(const FInputActionValue& Value, EGSAbilityInputID Id, bool IsActive)
+{
+	if (IsAlive())
+	{
+		SendLocalInputToASC(IsActive, Id);
+	}
+}
+
+void AGSHeroCharacter::Move(const FInputActionValue& Value)
+{
+	if (IsAlive())
+	{
+		FVector2D MovementVector = Value.Get<FVector2D>();
+
+		if (Controller != nullptr)
+		{
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			FVector ForwardDirection;
+			FVector RightDirection;
+			FVector UpDirection;
+
+			FRotationMatrix(YawRotation).GetUnitAxes(ForwardDirection, RightDirection, UpDirection);
+
+			AddMovementInput(ForwardDirection, MovementVector.Y);
+			AddMovementInput(RightDirection, MovementVector.X);
+		}
+	}
+}
+
+void AGSHeroCharacter::Look(const FInputActionValue& Value)
+{
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
 
