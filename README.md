@@ -1,14 +1,21 @@
 # GASShooter
 
+## Fixes by Shadowfinder
+
+* Upgraded to Unreal 5.2.1
+* Fixed picking up items.
+* Removed extra branches for double checking door state.
+* Blood splatter shows up when third person perspective is enabled.
+
 ## Introduction
 
-GASShooter is an advanced FPS/TPS Sample Project for Unreal Engine 4's GameplayAbilitySystem (GAS) plugin. This is a sister project to the [GASDocumentation](https://github.com/tranek/GASDocumentation) and information about the techniques demonstrated here will be discussed in detail in the README there.
+GASShooter is an advanced FPS/TPS Sample Project for Unreal Engine 5's GameplayAbilitySystem (GAS) plugin. This is a sister project to the [GASDocumentation](https://github.com/tranek/GASDocumentation) and information about the techniques demonstrated here will be discussed in detail in the README there.
 
 This is not production-ready code but a starting point for evaluating different techniques in GAS relating to using weapons. TargetActors with persistent hit results and ReticleActors particularly do a lot of code on `Tick()`.
 
 Assets included come from Epic Games' ShooterGame learning project, Epic Games' Infinity Blade assets, or made by myself.
 
-GASShooter is current with **Unreal Engine 4.27**. There are branches of this Sample Project for older versions of Unreal Engine, but they are no longer supported and are liable to have bugs or out of date information.
+GASShooter is current with **Unreal Engine 5.21**.
 
 | Keybind             | Action                                                      |
 | ------------------- | ----------------------------------------------------------- |

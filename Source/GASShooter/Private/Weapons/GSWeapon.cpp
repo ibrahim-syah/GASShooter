@@ -133,7 +133,7 @@ void AGSWeapon::NotifyActorBeginOverlap(AActor* Other)
 {
 	Super::NotifyActorBeginOverlap(Other);
 
-	if (!IsPendingKill() && !OwningCharacter)
+	if (IsValidChecked(this) && !OwningCharacter)
 	{
 		PickUpOnTouch(Cast<AGSHeroCharacter>(Other));
 	}
@@ -215,7 +215,8 @@ void AGSWeapon::AddAbilities()
 
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s %s Role: %s ASC is null"), *FString(__FUNCTION__), *GetName(), GET_ACTOR_ROLE_FSTRING(OwningCharacter));
+		//UE_LOG(LogTemp, Error, TEXT("%s %s Role: %s ASC is null"), *FString(__FUNCTION__), *GetName(), GET_ACTOR_ROLE_FSTRING(OwningCharacter));
+		UE_LOG(LogTemp, Error, TEXT("%s %s ASC Role is null"), *FString(__FUNCTION__), *GetName());
 		return;
 	}
 

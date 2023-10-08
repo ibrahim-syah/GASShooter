@@ -66,6 +66,9 @@ public:
 
 	virtual void AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags);
 
+	// I moved perspective up the base because even a minion pawn or tank pawn etc might have a perspective before and as you possess them.
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter")
+	virtual bool IsInFirstPersonPerspective() const;
 
 	/**
 	* Getters for attributes from GSAttributeSetBase
@@ -129,6 +132,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
 	class USoundCue* DeathSound;
+
+	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Camera")
+	bool bIsFirstPersonPerspective;
 
 	// Default abilities for this Character. These will be removed on Character death and regiven if Character respawns.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Abilities")

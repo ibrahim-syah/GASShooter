@@ -281,11 +281,6 @@ void AGSHeroCharacter::FinishDying()
 	Super::FinishDying();
 }
 
-bool AGSHeroCharacter::IsInFirstPersonPerspective() const
-{
-	return bIsFirstPersonPerspective;
-}
-
 USkeletalMeshComponent* AGSHeroCharacter::GetFirstPersonMesh() const
 {
 	return FirstPersonMesh;
@@ -901,8 +896,9 @@ void AGSHeroCharacter::BindASCInput()
 {
 	if (!bASCInputBound && IsValid(AbilitySystemComponent) && IsValid(InputComponent))
 	{
+		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASShooter"), FName("EGSAbilityInputID"));
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
-			FString("CancelTarget"), FString("EGSAbilityInputID"), static_cast<int32>(EGSAbilityInputID::Confirm), static_cast<int32>(EGSAbilityInputID::Cancel)));
+			FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EGSAbilityInputID::Confirm), static_cast<int32>(EGSAbilityInputID::Cancel)));
 
 		bASCInputBound = true;
 	}

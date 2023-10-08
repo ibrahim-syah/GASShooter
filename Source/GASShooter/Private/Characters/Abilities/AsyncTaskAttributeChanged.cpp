@@ -53,7 +53,8 @@ void UAsyncTaskAttributeChanged::EndTask()
 	}
 
 	SetReadyToDestroy();
-	MarkPendingKill();
+	//MarkPendingKill();
+	MarkAsGarbage();
 }
 
 void UAsyncTaskAttributeChanged::AttributeChanged(const FOnAttributeChangeData & Data)

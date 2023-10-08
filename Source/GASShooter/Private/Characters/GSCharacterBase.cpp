@@ -130,6 +130,11 @@ void AGSCharacterBase::AddDamageNumber(float Damage, FGameplayTagContainer Damag
 	}
 }
 
+bool AGSCharacterBase::IsInFirstPersonPerspective() const
+{
+	return bIsFirstPersonPerspective;
+}
+
 int32 AGSCharacterBase::GetCharacterLevel() const
 {
 	//TODO

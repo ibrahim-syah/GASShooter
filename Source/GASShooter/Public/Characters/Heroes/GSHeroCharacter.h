@@ -78,9 +78,6 @@ public:
 
 	virtual void FinishDying() override;
 
-	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter")
-	virtual bool IsInFirstPersonPerspective() const;
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter")
 	USkeletalMeshComponent* GetFirstPersonMesh() const;
 
@@ -209,9 +206,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Camera")
 	FVector StartingThirdPersonCameraBoomLocation;
-
-	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Camera")
-	bool bIsFirstPersonPerspective;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	bool bWasInFirstPersonPerspectiveWhenKnockedDown;
