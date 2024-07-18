@@ -284,11 +284,26 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|Camera")
 	class UCameraComponent* ThirdPersonCamera;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|Camera")
-	class UCameraComponent* FirstPersonCamera;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USceneComponent* FP_Root;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USpringArmComponent* Mesh_Root;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USceneComponent* Offset_Root;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USkeletalMeshComponent* FirstPersonMesh;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USpringArmComponent* Cam_Root = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USkeletalMeshComponent* Cam_Skel;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|Camera")
+	class UCameraComponent* FirstPersonCamera;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GASShooter|UI")
 	TSubclassOf<class UGSFloatingStatusBarWidget> UIFloatingStatusBarClass;

@@ -10,6 +10,7 @@
 #include "Characters/Abilities/AttributeSets/GSAmmoAttributeSet.h"
 #include "Characters/Abilities/AttributeSets/GSAttributeSetBase.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GASShooter/GASShooterGameModeBase.h"
 #include "GSBlueprintFunctionLibrary.h"
@@ -42,6 +43,15 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	CurrentWeaponTag = NoWeaponTag;
 	Inventory = FGSHeroInventory();
 	ReviveDuration = 4.0f;
+
+	GetCharacterMovement()->GravityScale = 1.5f;
+	GetCharacterMovement()->MaxAcceleration = 3072.f;
+	GetCharacterMovement()->BrakingFrictionFactor = 1.f;
+	GetCharacterMovement()->PerchRadiusThreshold = 30.f;
+	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+	GetCharacterMovement()->JumpZVelocity = 750.f;
+	GetCharacterMovement()->BrakingDecelerationFalling = 200.f;
+	GetCharacterMovement()->AirControl = 0.275f;
 	
 	ThirdPersonCameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
 	ThirdPersonCameraBoom->SetupAttachment(RootComponent);
@@ -52,18 +62,52 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	ThirdPersonCamera->SetupAttachment(ThirdPersonCameraBoom);
 	ThirdPersonCamera->FieldOfView = Default3PFOV;
 
-	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(FName("FirstPersonCamera"));
-	FirstPersonCamera->SetupAttachment(RootComponent);
-	FirstPersonCamera->bUsePawnControlRotation = true;
+	FP_Root = CreateDefaultSubobject<USceneComponent>(TEXT("FP_Root"));
+	FP_Root->SetupAttachment(RootComponent);
+
+	Mesh_Root = CreateDefaultSubobject<USpringArmComponent>(TEXT("Mesh_Root"));
+	Mesh_Root->SetupAttachment(FP_Root);
+	Mesh_Root->SetRelativeLocation(FVector(0.f, 0.f, 70.f));
+	Mesh_Root->TargetArmLength = 0;
+	Mesh_Root->bDoCollisionTest = false;
+	Mesh_Root->bUsePawnControlRotation = true;
+	Mesh_Root->bInheritPitch = true;
+	Mesh_Root->bInheritYaw = true;
+	Mesh_Root->bInheritRoll = false;
+
+	Offset_Root = CreateDefaultSubobject<USceneComponent>(TEXT("Offset_Root"));
+	Offset_Root->SetupAttachment(Mesh_Root);
+	Offset_Root->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
 
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("FirstPersonMesh"));
-	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
+	FirstPersonMesh->SetupAttachment(Offset_Root);
 	FirstPersonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	FirstPersonMesh->SetCollisionProfileName(FName("NoCollision"));
 	FirstPersonMesh->bReceivesDecals = false;
 	FirstPersonMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
 	FirstPersonMesh->CastShadow = false;
 	FirstPersonMesh->SetVisibility(false, true);
+	FirstPersonMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	FirstPersonMesh->SetRelativeLocation(FVector(0.f, 0.f, -79.5f));
+
+	Cam_Root = CreateDefaultSubobject<USpringArmComponent>(TEXT("Cam_Root"));
+	Cam_Root->SetupAttachment(FP_Root);
+	Cam_Root->SetRelativeLocation(FVector(0.f, 0.f, 70.f));
+	Cam_Root->TargetArmLength = 0;
+	Cam_Root->bDoCollisionTest = false;
+	Cam_Root->bUsePawnControlRotation = true;
+	Cam_Root->bInheritPitch = true;
+	Cam_Root->bInheritYaw = true;
+	Cam_Root->bInheritRoll = false;
+
+	Cam_Skel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Cam_Skel"));
+	Cam_Skel->SetupAttachment(Cam_Root);
+	Cam_Skel->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
+
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(FName("FirstPersonCamera"));
+	FirstPersonCamera->SetupAttachment(Cam_Skel);
+	FirstPersonCamera->bUsePawnControlRotation = true;
+	FirstPersonCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
 
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
