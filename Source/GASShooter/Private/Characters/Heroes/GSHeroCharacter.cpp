@@ -805,6 +805,15 @@ void AGSHeroCharacter::PostInitializeComponents()
 	StartingThirdPersonCameraBoomLocation = ThirdPersonCameraBoom->GetRelativeLocation();
 	StartingThirdPersonMeshLocation = GetMesh()->GetRelativeLocation();
 
+	CharacterInitialSpawnDefaultInventory();
+}
+
+void AGSHeroCharacter::CharacterInitialSpawnDefaultInventory_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Called from %s with original CharacterInitialSpawnDefaultInventory implementation."), *GetName());
+	UE_LOG(LogTemp, Warning, TEXT("%s() original implementation called. Override this in BP instead!."), *FString(__FUNCTION__));
+
+	// Call this function from BP for BP_HeroCharacter subclasses!
 	//GetWorldTimerManager().SetTimerForNextTick(this, &AGSHeroCharacter::SpawnDefaultInventory);
 }
 

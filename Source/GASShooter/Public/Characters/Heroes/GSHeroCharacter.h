@@ -359,6 +359,9 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void CharacterInitialSpawnDefaultInventory();
+
 	// Mouse
 	void LookUp(float Value);
 
@@ -398,6 +401,7 @@ protected:
 	void BindASCInput();
 
 	// Server spawns default inventory
+	UFUNCTION(BlueprintCallable)
 	void SpawnDefaultInventory();
 
 	void SetupStartupPerspective();
