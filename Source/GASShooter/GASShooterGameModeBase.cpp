@@ -15,11 +15,21 @@ AGASShooterGameModeBase::AGASShooterGameModeBase()
 {
 	RespawnDelay = 5.0f;
 
-	HeroClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/Characters/Hero/BP_HeroCharacter_Default.BP_HeroCharacter_Default_C"));
+	HeroClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/Characters/Hero/BP_HeroCharacter_Lyra.BP_HeroCharacter_Lyra_C"));
 	if (!HeroClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find HeroClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
+	
+	// Doesn't work for some reason
+	/*if (DefaultPawnClass->IsChildOf(AGSHeroCharacter::StaticClass()))
+	{
+		HeroClass = DefaultPawnClass;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to set HeroClass. Please use a sublcass of AGSHeroCharacter as the default pawn class for respawning"), *FString(__FUNCTION__));
+	}*/
 }
 
 void AGASShooterGameModeBase::HeroDied(AController* Controller)
