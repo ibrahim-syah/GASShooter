@@ -805,7 +805,7 @@ void AGSHeroCharacter::PostInitializeComponents()
 	StartingThirdPersonCameraBoomLocation = ThirdPersonCameraBoom->GetRelativeLocation();
 	StartingThirdPersonMeshLocation = GetMesh()->GetRelativeLocation();
 
-	GetWorldTimerManager().SetTimerForNextTick(this, &AGSHeroCharacter::SpawnDefaultInventory);
+	//GetWorldTimerManager().SetTimerForNextTick(this, &AGSHeroCharacter::SpawnDefaultInventory);
 }
 
 void AGSHeroCharacter::LookUp(float Value)
