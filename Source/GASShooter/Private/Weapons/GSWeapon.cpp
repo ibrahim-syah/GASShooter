@@ -153,7 +153,7 @@ void AGSWeapon::Equip()
 	{
 		WeaponMesh1P->AttachToComponent(OwningCharacter->GetFirstPersonMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, AttachPoint);
 		WeaponMesh1P->SetRelativeLocation(WeaponMesh1PEquippedRelativeLocation);
-		WeaponMesh1P->SetRelativeRotation(FRotator(0, 0, -90.0f));
+		WeaponMesh1P->SetRelativeRotation(WeaponMesh1PEquippedRelativeRotation);
 
 		if (OwningCharacter->IsInFirstPersonPerspective())
 		{
@@ -169,7 +169,7 @@ void AGSWeapon::Equip()
 	{
 		WeaponMesh3P->AttachToComponent(OwningCharacter->GetThirdPersonMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, AttachPoint);
 		WeaponMesh3P->SetRelativeLocation(WeaponMesh3PEquippedRelativeLocation);
-		WeaponMesh3P->SetRelativeRotation(FRotator(0, 0, -90.0f));
+		WeaponMesh3P->SetRelativeRotation(WeaponMesh3PEquippedRelativeRotation);
 		WeaponMesh3P->CastShadow = true;
 		WeaponMesh3P->bCastHiddenShadow = true;
 

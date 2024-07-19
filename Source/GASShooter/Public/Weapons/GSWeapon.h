@@ -220,9 +220,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FVector WeaponMesh1PEquippedRelativeLocation;
 
+	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
+	FRotator WeaponMesh1PEquippedRelativeRotation = FRotator{0.f, 0.f, -90.f};
+
 	// Relative Location of weapon 3P Mesh when equipped
 	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FVector WeaponMesh3PEquippedRelativeLocation;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
+	FRotator WeaponMesh3PEquippedRelativeRotation = FRotator{ 0.f, 0.f, -90.f };
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "GASShooter|GSWeapon")
 	AGSHeroCharacter* OwningCharacter;
