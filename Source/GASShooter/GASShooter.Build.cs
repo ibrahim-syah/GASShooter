@@ -15,8 +15,10 @@ public class GASShooter : ModuleRules
 			"Engine",
 			"InputCore",
 			"NetCore",
-			"EnhancedInput"
-		});
+			"EnhancedInput",
+            "Niagara",
+			"MetasoundEngine"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
 			"Slate",
