@@ -208,8 +208,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "GASShooter|GSWeapon")
 	USkeletalMeshComponent* WeaponMesh1P;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSWeapon")
+	TSubclassOf<UAnimInstance> WeaponAnimLinkLayer1P;
+
 	UPROPERTY(VisibleAnywhere, Category = "GASShooter|GSWeapon")
 	USkeletalMeshComponent* WeaponMesh3P;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSWeapon")
+	TSubclassOf<UAnimInstance> WeaponAnimLinkLayer3P;
 
 	// Relative Location of weapon 3P Mesh when in pickup mode
 	// 1P weapon mesh is invisible so it doesn't need one
