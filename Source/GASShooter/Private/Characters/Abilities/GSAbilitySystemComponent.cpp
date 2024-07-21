@@ -4,6 +4,7 @@
 #include "Characters/Abilities/GSAbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Animation/AnimInstance.h"
+#include "Characters/Animation/LyraAnimInstance.h"
 #include "Characters/Abilities/GSGameplayAbility.h"
 #include "GameplayCueManager.h"
 #include "GSBlueprintFunctionLibrary.h"
@@ -65,6 +66,24 @@ void UGSAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActo
 	if (bPendingMontageRep)
 	{
 		OnRep_ReplicatedAnimMontageForMesh();
+	}
+
+	FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+	check(ActorInfo);
+	check(InOwnerActor);
+
+	/*const bool bHasNewPawnAvatar = Cast<APawn>(InAvatarActor) && (InAvatarActor != ActorInfo->AvatarActor);
+	if (bHasNewPawnAvatar)
+	{
+		if (ULyraAnimInstance* MyAnimInstance = Cast<ULyraAnimInstance>(ActorInfo->GetAnimInstance()))
+		{
+			MyAnimInstance->InitializeWithAbilitySystem(this);
+		}
+	}*/
+	
+	if (ULyraAnimInstance* MyAnimInstance = Cast<ULyraAnimInstance>(ActorInfo->GetAnimInstance()))
+	{
+		MyAnimInstance->InitializeWithAbilitySystem(this);
 	}
 }
 
