@@ -25,29 +25,29 @@ class GASSHOOTER_API UGSAmmoAttributeSet : public UAttributeSet
 public:
 	UGSAmmoAttributeSet();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_RifleReserveAmmo)
-	FGameplayAttributeData RifleReserveAmmo;
-	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, RifleReserveAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_NormalReserveAmmo)
+	FGameplayAttributeData NormalReserveAmmo;
+	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, NormalReserveAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxRifleReserveAmmo)
-	FGameplayAttributeData MaxRifleReserveAmmo;
-	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, MaxRifleReserveAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxNormalReserveAmmo)
+	FGameplayAttributeData MaxNormalReserveAmmo;
+	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, MaxNormalReserveAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_RocketReserveAmmo)
-	FGameplayAttributeData RocketReserveAmmo;
-	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, RocketReserveAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_HeavyReserveAmmo)
+	FGameplayAttributeData HeavyReserveAmmo;
+	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, HeavyReserveAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxRocketReserveAmmo)
-	FGameplayAttributeData MaxRocketReserveAmmo;
-	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, MaxRocketReserveAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxHeavyReserveAmmo)
+	FGameplayAttributeData MaxHeavyReserveAmmo;
+	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, MaxHeavyReserveAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_ShotgunReserveAmmo)
-	FGameplayAttributeData ShotgunReserveAmmo;
-	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, ShotgunReserveAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_SpecialReserveAmmo)
+	FGameplayAttributeData SpecialReserveAmmo;
+	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, SpecialReserveAmmo)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxShotgunReserveAmmo)
-	FGameplayAttributeData MaxShotgunReserveAmmo;
-	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, MaxShotgunReserveAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxSpecialReserveAmmo)
+	FGameplayAttributeData MaxSpecialReserveAmmo;
+	ATTRIBUTE_ACCESSORS(UGSAmmoAttributeSet, MaxSpecialReserveAmmo)
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
@@ -58,9 +58,9 @@ public:
 
 protected:
 	// Cache tags
-	FGameplayTag RifleAmmoTag;
-	FGameplayTag RocketAmmoTag;
-	FGameplayTag ShotgunAmmoTag;
+	FGameplayTag NormalAmmoTag;
+	FGameplayTag HeavyAmmoTag;
+	FGameplayTag SpecialAmmoTag;
 
 	// Helper function to proportionally adjust the value of an attribute when it's associated max attribute changes.
 	// (i.e. When MaxHealth increases, Health increases by an amount that maintains the same percentage as before)
@@ -71,20 +71,20 @@ protected:
 	**/
 	
 	UFUNCTION()
-	virtual void OnRep_RifleReserveAmmo(const FGameplayAttributeData& OldRifleReserveAmmo);
+	virtual void OnRep_NormalReserveAmmo(const FGameplayAttributeData& OldNormalReserveAmmo);
 
 	UFUNCTION()
-	virtual void OnRep_MaxRifleReserveAmmo(const FGameplayAttributeData& OldMaxRifleReserveAmmo);
+	virtual void OnRep_MaxNormalReserveAmmo(const FGameplayAttributeData& OldMaxNormalReserveAmmo);
 
 	UFUNCTION()
-	virtual void OnRep_RocketReserveAmmo(const FGameplayAttributeData& OldRocketReserveAmmo);
+	virtual void OnRep_HeavyReserveAmmo(const FGameplayAttributeData& OldHeavyReserveAmmo);
 
 	UFUNCTION()
-	virtual void OnRep_MaxRocketReserveAmmo(const FGameplayAttributeData& OldMaxRocketReserveAmmo);
+	virtual void OnRep_MaxHeavyReserveAmmo(const FGameplayAttributeData& OldMaxHeavyReserveAmmo);
 
 	UFUNCTION()
-	virtual void OnRep_ShotgunReserveAmmo(const FGameplayAttributeData& OldShotgunReserveAmmo);
+	virtual void OnRep_SpecialReserveAmmo(const FGameplayAttributeData& OldSpecialReserveAmmo);
 
 	UFUNCTION()
-	virtual void OnRep_MaxShotgunReserveAmmo(const FGameplayAttributeData& OldMaxShotgunReserveAmmo);
+	virtual void OnRep_MaxSpecialReserveAmmo(const FGameplayAttributeData& OldMaxSpecialReserveAmmo);
 };
