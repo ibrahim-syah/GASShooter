@@ -6,6 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "Characters/Animation/LyraAnimInstance.h"
 #include "Characters/Abilities/GSGameplayAbility.h"
+#include "Characters/Heroes/GSHeroCharacter.h"
 #include "GameplayCueManager.h"
 #include "GSBlueprintFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -81,9 +82,19 @@ void UGSAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActo
 		}
 	}*/
 	
+	// Default anim instance for default character mesh
 	if (ULyraAnimInstance* MyAnimInstance = Cast<ULyraAnimInstance>(ActorInfo->GetAnimInstance()))
 	{
 		MyAnimInstance->InitializeWithAbilitySystem(this);
+	}
+
+	// Only applicable for AGSHeroCharacter subclass that has FP Mesh
+	if (AGSHeroCharacter* HeroCharacter = Cast<AGSHeroCharacter>(ActorInfo->AvatarActor))
+	{
+		if (ULyraAnimInstance* FPAnimInstance = Cast<ULyraAnimInstance>(HeroCharacter->GetFirstPersonMesh()->GetAnimInstance()))
+		{
+			FPAnimInstance->InitializeWithAbilitySystem(this);
+		}
 	}
 }
 

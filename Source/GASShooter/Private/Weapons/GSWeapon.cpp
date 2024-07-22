@@ -163,6 +163,11 @@ void AGSWeapon::Equip()
 		{
 			WeaponMesh1P->SetVisibility(false, true);
 		}
+
+		if (WeaponAnimLinkLayer1P)
+		{
+			OwningCharacter->GetFirstPersonMesh()->LinkAnimClassLayers(WeaponAnimLinkLayer1P);
+		}
 	}
 
 	if (WeaponMesh3P)
