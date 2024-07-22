@@ -1,0 +1,3 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+Content/Effects/Textures/Flipbooks/SmokeSwirl_3_Flipbook_CHANNELPACK.uasset filter=lfs diff=lfs merge=lfs -text
