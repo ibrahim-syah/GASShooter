@@ -1,5 +1,12 @@
 # GASShooter
 
+## Additions by Ibrahim:
+* Use Lyra's AnimBP for easier gameplay tag binding for animation
+
+### Assets used:
+* Lyra's Mannequin, mannequin animations, weapons, weapon metasounds, weapon niagara FX
+* SneakyKittyGameDev's Red Dot Sight from Procedural Aiming Tutorial
+
 ## Fixes by Shadowfinder
 
 * Upgraded to Unreal 5.2.1
