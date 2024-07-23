@@ -260,8 +260,8 @@ void AGSPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(LookStickAction, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick);
 
 		// Crouch
-		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::CustomCrouch);
-		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::ReleaseCrouch);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::Input_Crouch);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::Input_CrouchRelease);
 
 		// sprint
 		//EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ThisClass::PressedSprint);
@@ -345,10 +345,18 @@ void AGSPlayerController::Input_LookStick(const FInputActionValue& InputActionVa
 	}
 }
 
-//void AGuardianPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
-//{
-//	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
-//	{
-//		Character->ToggleCrouch();
-//	}
-//}
+void AGSPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
+{
+	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
+	{
+		HeroCharacter->Crouch();
+	}
+}
+
+void AGSPlayerController::Input_CrouchRelease(const FInputActionValue& InputActionValue)
+{
+	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
+	{
+		HeroCharacter->UnCrouch();
+	}
+}
