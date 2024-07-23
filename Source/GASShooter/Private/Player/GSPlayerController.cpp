@@ -247,10 +247,6 @@ void AGSPlayerController::SetupInputComponent()
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		// Jumping
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::Jump);
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
-
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
 		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ThisClass::StopMove);
@@ -262,11 +258,6 @@ void AGSPlayerController::SetupInputComponent()
 		// Crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::Input_Crouch);
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::Input_CrouchRelease);
-
-		// sprint
-		//EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ThisClass::PressedSprint);
-
-		//EnhancedInputComponent->BindAction(QuickMeleeAction, ETriggerEvent::Started, this, &ThisClass::PressedQuickMelee);
 	}
 	else
 	{

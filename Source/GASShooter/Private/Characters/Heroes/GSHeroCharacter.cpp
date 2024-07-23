@@ -220,8 +220,6 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrevWeapon, false);
 
 		EnhancedInputComponent->BindAction(TogglePerspectiveAction, ETriggerEvent::Started, this, &AGSHeroCharacter::TogglePerspective);
-		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Move);
-		//EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Look);
 	}
 
 	// Bind player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
