@@ -220,8 +220,8 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrevWeapon, false);
 
 		EnhancedInputComponent->BindAction(TogglePerspectiveAction, ETriggerEvent::Started, this, &AGSHeroCharacter::TogglePerspective);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Move);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Look);
+		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Move);
+		//EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGSHeroCharacter::Look);
 	}
 
 	// Bind player input to the AbilitySystemComponent. Also called in OnRep_PlayerState because of a potential race condition.
@@ -767,14 +767,14 @@ void AGSHeroCharacter::BeginPlay()
 	{
 		ServerSyncCurrentWeapon();
 	}
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
+	
+	//if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	//{
+	//	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	//	{
+	//		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	//	}
+	//}
 }
 
 void AGSHeroCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -817,54 +817,53 @@ void AGSHeroCharacter::CharacterInitialSpawnDefaultInventory_Implementation()
 	//GetWorldTimerManager().SetTimerForNextTick(this, &AGSHeroCharacter::SpawnDefaultInventory);
 }
 
-void AGSHeroCharacter::LookUp(float Value)
-{
-	if (IsAlive())
-	{
-		AddControllerPitchInput(Value);
-	}
-}
-
-void AGSHeroCharacter::LookUpRate(float Value)
-{
-	if (IsAlive())
-	{
-		AddControllerPitchInput(Value * BaseLookUpRate * GetWorld()->DeltaTimeSeconds);
-	}
-}
-
-void AGSHeroCharacter::Turn(float Value)
-{
-	if (IsAlive())
-	{
-		AddControllerYawInput(Value);
-	}
-}
-
-void AGSHeroCharacter::TurnRate(float Value)
-{
-	if (IsAlive())
-	{
-		AddControllerYawInput(Value * BaseTurnRate * GetWorld()->DeltaTimeSeconds);
-	}
-}
-
-void AGSHeroCharacter::MoveForward(float Value)
-{
-	if (IsAlive())
-	{
-		AddMovementInput(UKismetMathLibrary::GetForwardVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
-	}
-}
-
-void AGSHeroCharacter::MoveRight(float Value)
-{
-	if (IsAlive())
-	{
-		AddMovementInput(UKismetMathLibrary::GetRightVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
-	}
-}
-
+//void AGSHeroCharacter::LookUp(float Value)
+//{
+//	if (IsAlive())
+//	{
+//		AddControllerPitchInput(Value);
+//	}
+//}
+//
+//void AGSHeroCharacter::LookUpRate(float Value)
+//{
+//	if (IsAlive())
+//	{
+//		AddControllerPitchInput(Value * BaseLookUpRate * GetWorld()->DeltaTimeSeconds);
+//	}
+//}
+//
+//void AGSHeroCharacter::Turn(float Value)
+//{
+//	if (IsAlive())
+//	{
+//		AddControllerYawInput(Value);
+//	}
+//}
+//
+//void AGSHeroCharacter::TurnRate(float Value)
+//{
+//	if (IsAlive())
+//	{
+//		AddControllerYawInput(Value * BaseTurnRate * GetWorld()->DeltaTimeSeconds);
+//	}
+//}
+//
+//void AGSHeroCharacter::MoveForward(float Value)
+//{
+//	if (IsAlive())
+//	{
+//		AddMovementInput(UKismetMathLibrary::GetForwardVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
+//	}
+//}
+//
+//void AGSHeroCharacter::MoveRight(float Value)
+//{
+//	if (IsAlive())
+//	{
+//		AddMovementInput(UKismetMathLibrary::GetRightVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
+//	}
+//}
 void AGSHeroCharacter::TogglePerspective()
 {
 	// If knocked down, always be in 3rd person
@@ -1218,40 +1217,39 @@ void AGSHeroCharacter::InvokeAbility(const FInputActionValue& Value, EGSAbilityI
 		SendLocalInputToASC(IsActive, Id);
 	}
 }
-
-void AGSHeroCharacter::Move(const FInputActionValue& Value)
-{
-	if (IsAlive())
-	{
-		FVector2D MovementVector = Value.Get<FVector2D>();
-
-		if (Controller != nullptr)
-		{
-			const FRotator Rotation = Controller->GetControlRotation();
-			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-			FVector ForwardDirection;
-			FVector RightDirection;
-			FVector UpDirection;
-
-			FRotationMatrix(YawRotation).GetUnitAxes(ForwardDirection, RightDirection, UpDirection);
-
-			AddMovementInput(ForwardDirection, MovementVector.Y);
-			AddMovementInput(RightDirection, MovementVector.X);
-		}
-	}
-}
-
-void AGSHeroCharacter::Look(const FInputActionValue& Value)
-{
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
-}
+//void AGSHeroCharacter::Move(const FInputActionValue& Value)
+//{
+//	if (IsAlive())
+//	{
+//		FVector2D MovementVector = Value.Get<FVector2D>();
+//
+//		if (Controller != nullptr)
+//		{
+//			const FRotator Rotation = Controller->GetControlRotation();
+//			const FRotator YawRotation(0, Rotation.Yaw, 0);
+//
+//			FVector ForwardDirection;
+//			FVector RightDirection;
+//			FVector UpDirection;
+//
+//			FRotationMatrix(YawRotation).GetUnitAxes(ForwardDirection, RightDirection, UpDirection);
+//
+//			AddMovementInput(ForwardDirection, MovementVector.Y);
+//			AddMovementInput(RightDirection, MovementVector.X);
+//		}
+//	}
+//}
+//
+//void AGSHeroCharacter::Look(const FInputActionValue& Value)
+//{
+//	FVector2D LookAxisVector = Value.Get<FVector2D>();
+//
+//	if (Controller != nullptr)
+//	{
+//		AddControllerYawInput(LookAxisVector.X);
+//		AddControllerPitchInput(LookAxisVector.Y);
+//	}
+//}
 
 void AGSHeroCharacter::CurrentWeaponPrimaryClipAmmoChanged(int32 OldPrimaryClipAmmo, int32 NewPrimaryClipAmmo)
 {

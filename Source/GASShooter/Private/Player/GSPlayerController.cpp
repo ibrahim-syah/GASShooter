@@ -8,6 +8,10 @@
 #include "Characters/Heroes/GSHeroCharacter.h"
 #include "Player/GSPlayerState.h"
 #include "UI/GSHUDWidget.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+#include "GameFramework/Pawn.h"
 #include "Weapons/GSWeapon.h"
 
 void AGSPlayerController::CreateHUD()
@@ -221,3 +225,130 @@ bool AGSPlayerController::ServerKill_Validate()
 {
 	return true;
 }
+
+void AGSPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// get the enhanced input subsystem
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		// add the mapping context so we get controls
+		Subsystem->AddMappingContext(InputMappingContext, 0);
+
+		UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
+	}
+}
+
+void AGSPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		// Jumping
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ThisClass::Jump);
+		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
+
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
+		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ThisClass::StopMove);
+
+		// Looking
+		EnhancedInputComponent->BindAction(LookMouseAction, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse);
+		EnhancedInputComponent->BindAction(LookStickAction, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick);
+
+		// Crouch
+		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::CustomCrouch);
+		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::ReleaseCrouch);
+
+		// sprint
+		//EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ThisClass::PressedSprint);
+
+		//EnhancedInputComponent->BindAction(QuickMeleeAction, ETriggerEvent::Started, this, &ThisClass::PressedQuickMelee);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void AGSPlayerController::Input_Move(const FInputActionValue& InputActionValue)
+{
+	APawn* GuardianPawn = GetPawn<APawn>();
+	AController* Controller = GuardianPawn ? GuardianPawn->GetController() : nullptr;
+
+	if (Controller)
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (Value.X != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+			GuardianPawn->AddMovementInput(MovementDirection, Value.X);
+		}
+
+		if (Value.Y != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			GuardianPawn->AddMovementInput(MovementDirection, Value.Y);
+		}
+	}
+}
+
+void AGSPlayerController::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+	APawn* GuardianPawn = GetPawn<APawn>();
+
+	if (!GuardianPawn)
+	{
+		return;
+	}
+
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+	if (Value.X != 0.0f)
+	{
+		GuardianPawn->AddControllerYawInput(Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		GuardianPawn->AddControllerPitchInput(Value.Y);
+	}
+}
+
+void AGSPlayerController::Input_LookStick(const FInputActionValue& InputActionValue)
+{
+	APawn* GuardianPawn = GetPawn<APawn>();
+
+	if (!GuardianPawn)
+	{
+		return;
+	}
+
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+	const UWorld* World = GetWorld();
+	check(World);
+
+	if (Value.X != 0.0f)
+	{
+		GuardianPawn->AddControllerYawInput(Value.X * 1.f * World->GetDeltaSeconds());
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		GuardianPawn->AddControllerPitchInput(Value.Y * 1.f * World->GetDeltaSeconds());
+	}
+}
+
+//void AGuardianPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
+//{
+//	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
+//	{
+//		Character->ToggleCrouch();
+//	}
+//}

@@ -143,8 +143,8 @@ public:
 	* Enhanced Inputs
 	*/
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* DefaultMappingContext;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* ConfirmAction;
@@ -179,11 +179,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MoveAction;*/
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LookAction;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SprintAction;
@@ -362,23 +362,23 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void CharacterInitialSpawnDefaultInventory();
 
-	// Mouse
-	void LookUp(float Value);
+	//// Mouse
+	//void LookUp(float Value);
 
-	// Gamepad
-	void LookUpRate(float Value);
+	//// Gamepad
+	//void LookUpRate(float Value);
 
-	// Mouse
-	void Turn(float Value);
+	//// Mouse
+	//void Turn(float Value);
 
-	// Gamepad
-	void TurnRate(float Value);
+	//// Gamepad
+	//void TurnRate(float Value);
 
-	// Mouse + Gamepad
-	void MoveForward(float Value);
+	//// Mouse + Gamepad
+	//void MoveForward(float Value);
 
-	// Mouse + Gamepad
-	void MoveRight(float Value);
+	//// Mouse + Gamepad
+	//void MoveRight(float Value);
 
 	// Toggles between perspectives
 	void TogglePerspective();
@@ -418,9 +418,9 @@ protected:
 
 	void InvokeAbility(const FInputActionValue& Value, EGSAbilityInputID Id, bool IsActive);
 
-	void Move(const FInputActionValue& Value);
+	/*void Move(const FInputActionValue& Value);
 
-	void Look(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);*/
 
 	UFUNCTION()
 	virtual void CurrentWeaponPrimaryClipAmmoChanged(int32 OldPrimaryClipAmmo, int32 NewPrimaryClipAmmo);
