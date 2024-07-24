@@ -88,6 +88,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSWeapon")
 	virtual USkeletalMeshComponent* GetWeaponMesh1P() const;
 
+	float GetSightForwardLength() const { return Sight_ForwardLength; };
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSWeapon")
 	virtual USkeletalMeshComponent* GetWeaponMesh3P() const;
 
@@ -207,6 +209,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "GASShooter|GSWeapon")
 	USkeletalMeshComponent* WeaponMesh1P;
+
+	UPROPERTY(EditAnywhere, Category = "GASShooter|GSWeapon")
+	float Sight_ForwardLength{ 30.f };
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSWeapon")
 	TSubclassOf<UAnimInstance> WeaponAnimLinkLayer1P;

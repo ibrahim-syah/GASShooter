@@ -1490,6 +1490,31 @@ float AGSHeroCharacter::GetADSAlpha() const
 	return ADSAlpha;
 }
 
+float AGSHeroCharacter::GetADSAlphaInversed() const
+{
+	return 1.f - ADSAlpha;
+}
+
+float AGSHeroCharacter::GetADSAlphaLerp() const
+{
+	return ADSAlphaLerp;
+}
+
+FTransform AGSHeroCharacter::GetSightTransform() const
+{
+	return SightTransform;
+}
+
+FTransform AGSHeroCharacter::GetRelativeHandTransform() const
+{
+	return RelativeHandTransform;
+}
+
+float AGSHeroCharacter::GetHasWeaponAlpha() const
+{
+	return CurrentWeapon ? 1.f : 0.f;
+}
+
 ////////////////////////////////////////////////////////////////////////////////// FP Procedural Animation
 void AGSHeroCharacter::WalkLeftRightTLCallback(float val)
 {
@@ -1524,6 +1549,25 @@ void AGSHeroCharacter::WalkRollTLCallback(float val)
 
 void AGSHeroCharacter::WalkTLUpdateEvent()
 {
+	if (CurrentWeapon)
+	{
+		// Set SightTransform
+		const FTransform cameraWorldTransform = FirstPersonCamera->GetComponentTransform();
+		const FTransform mesh1pWorldTransform = FirstPersonMesh->GetComponentTransform();
+
+		const FTransform relativeTransform = UKismetMathLibrary::MakeRelativeTransform(cameraWorldTransform, mesh1pWorldTransform);
+
+		SightTransform.SetLocation(relativeTransform.GetLocation() + relativeTransform.GetRotation().GetForwardVector() * CurrentWeapon->GetSightForwardLength());
+		SightTransform.SetRotation(relativeTransform.Rotator().Quaternion());
+
+		// Set RelativeHandTransform
+		RelativeHandTransform = UKismetMathLibrary::MakeRelativeTransform(
+			CurrentWeapon->GetWeaponMesh1P()->GetSocketTransform("sight"),
+			FirstPersonMesh->GetSocketTransform("hand_r")
+		);
+	}
+
+
 	// update walk anim position
 	float lerpedWalkAnimPosX = FMath::Lerp(-0.4f, 0.4f, WalkLeftRightAlpha);
 	float lerpedWalkAnimPosZ = FMath::Lerp(-0.35f, 0.2f, WalkFwdBwdAlpha);
@@ -1660,26 +1704,3 @@ void AGSHeroCharacter::ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg
 	CamOffsetArg = CamOffsetCurrent;
 	CamAnimAlphaArg = CamAnimAlpha;
 }
-
-//////// ADS
-//void AGSHeroCharacter::ADSTLCallback(float val)
-//{
-//	ADSAlpha = val;
-//	ADSAlphaLerp = FMath::Lerp(0.2f, 1.f, (1.f - ADSAlpha));
-//	float lerped1PFOV = FMath::Lerp(Default1PFOV, targeting1pfov, CurrentWeapon->ADSAlpha);
-//	UCameraComponent* camera = GetFirstPersonCameraComponent();
-//	camera->SetFieldOfView(lerpedFOV);
-//	float lerpedIntensity = FMath::Lerp(0.4f, 0.7f, CurrentWeapon->ADSAlpha);
-//	camera->PostProcessSettings.VignetteIntensity = lerpedIntensity;
-//	float lerpedFlatFov = FMath::Lerp(90.f, 25.f, CurrentWeapon->ADSAlpha);
-//	CurrentWeapon->MPC_FP_Instance->SetScalarParameterValue(FName("FOV"), lerpedFlatFov);
-//	FLinearColor OutColor;
-//	CurrentWeapon->MPC_FP_Instance->GetVectorParameterValue(FName("Offset"), OutColor);
-//	float lerpedB = FMath::Lerp(0.f, 30.f, CurrentWeapon->ADSAlpha);
-//	FLinearColor newColor = FLinearColor(OutColor.R, OutColor.G, lerpedB, OutColor.A);
-//	CurrentWeapon->MPC_FP_Instance->SetVectorParameterValue(FName("Offset"), newColor);
-//
-//	float newSpeedMultiplier = FMath::Clamp(CurrentWeapon->ADSAlphaLerp, 0.55f, 1.f);
-//	GetCharacterMovement()->MaxWalkSpeed = GetBaseWalkSpeed() * newSpeedMultiplier;
-//	CurrentWeapon->ScopeSightMesh->OnWeaponADSTLUpdateDelegate.Broadcast(ADSAlpha); // set opacity of scope if applicable
-//}

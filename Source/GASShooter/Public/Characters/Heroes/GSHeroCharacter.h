@@ -274,6 +274,21 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetADSAlpha() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetADSAlphaInversed() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetADSAlphaLerp() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FTransform GetSightTransform() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FTransform GetRelativeHandTransform() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetHasWeaponAlpha() const;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	FVector StartingThirdPersonMeshLocation;
@@ -537,4 +552,7 @@ protected:
 	float ADSAlpha{ 0.f };
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	float ADSAlphaLerp{ 1.f };
+
+	FTransform SightTransform;
+	FTransform RelativeHandTransform;
 };
