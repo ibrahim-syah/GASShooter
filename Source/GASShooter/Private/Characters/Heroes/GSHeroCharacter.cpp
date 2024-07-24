@@ -24,6 +24,7 @@
 #include "UI/GSFloatingStatusBarWidget.h"
 #include "Weapons/GSWeapon.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/TimelineComponent.h"
 
 AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -134,6 +135,103 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	// Cache tags
 	KnockedDownTag = FGameplayTag::RequestGameplayTag("State.KnockedDown");
 	InteractingTag = FGameplayTag::RequestGameplayTag("State.Interacting");
+
+
+	////////////////////// FP Procedural animation setup
+	//CrouchTL = CreateDefaultSubobject<UTimelineComponent>(FName("CrouchTL"));
+	//CrouchTL->SetTimelineLength(0.2f);
+	//CrouchTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+
+	//FOnTimelineFloat onCrouchTLCallback;
+	//onCrouchTLCallback.BindUFunction(this, FName{ TEXT("CrouchTLCallback") });
+	//CrouchAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("CrouchAlphaCurve"));
+	//FKeyHandle KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
+	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.2f, 1.f);
+	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//CrouchTL->AddInterpFloat(CrouchAlphaCurve, onCrouchTLCallback);
+
+
+
+	//DipTL = CreateDefaultSubobject<UTimelineComponent>(FName("DipTL"));
+	//DipTL->SetTimelineLength(1.f);
+	//DipTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+
+	//FOnTimelineFloat onDipTLCallback;
+	//onDipTLCallback.BindUFunction(this, FName{ TEXT("DipTLCallback") });
+	//DipAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("DipAlphaCurve"));
+	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.2f, 0.95f);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.63f, 0.12f);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(1.f, 0.f);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//DipTL->AddInterpFloat(DipAlphaCurve, onDipTLCallback);
+
+	WalkingTL = CreateDefaultSubobject<UTimelineComponent>(FName("WalkingTL"));
+	WalkingTL->SetTimelineLength(1.f);
+	WalkingTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	WalkingTL->SetLooping(true);
+
+	FOnTimelineFloat onWalkingLeftRightTLCallback;
+	onWalkingLeftRightTLCallback.BindUFunction(this, FName{ TEXT("WalkLeftRightTLCallback") });
+	WalkLeftRightAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("WalkLeftRightAlphaCurve"));
+	WalkLeftRightAlphaCurve->FloatCurve.SetKeyInterpMode(WalkLeftRightAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkLeftRightAlphaCurve->FloatCurve.SetKeyInterpMode(WalkLeftRightAlphaCurve->FloatCurve.AddKey(0.25f, 0.5f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkLeftRightAlphaCurve->FloatCurve.SetKeyInterpMode(WalkLeftRightAlphaCurve->FloatCurve.AddKey(0.5f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkLeftRightAlphaCurve->FloatCurve.SetKeyInterpMode(WalkLeftRightAlphaCurve->FloatCurve.AddKey(0.75f, 0.5f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkLeftRightAlphaCurve->FloatCurve.SetKeyInterpMode(WalkLeftRightAlphaCurve->FloatCurve.AddKey(1.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkingTL->AddInterpFloat(WalkLeftRightAlphaCurve, onWalkingLeftRightTLCallback);
+
+	FOnTimelineFloat onWalkingFwdBwdTLCallback;
+	onWalkingFwdBwdTLCallback.BindUFunction(this, FName{ TEXT("WalkFwdBwdTLCallback") });
+	WalkFwdBwdAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("WalkFwdBwdAlphaCurve"));
+	WalkFwdBwdAlphaCurve->FloatCurve.SetKeyInterpMode(WalkFwdBwdAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkFwdBwdAlphaCurve->FloatCurve.SetKeyInterpMode(WalkFwdBwdAlphaCurve->FloatCurve.AddKey(0.3f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkFwdBwdAlphaCurve->FloatCurve.SetKeyInterpMode(WalkFwdBwdAlphaCurve->FloatCurve.AddKey(0.5f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkFwdBwdAlphaCurve->FloatCurve.SetKeyInterpMode(WalkFwdBwdAlphaCurve->FloatCurve.AddKey(0.8f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkFwdBwdAlphaCurve->FloatCurve.SetKeyInterpMode(WalkFwdBwdAlphaCurve->FloatCurve.AddKey(1.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkingTL->AddInterpFloat(WalkFwdBwdAlphaCurve, onWalkingFwdBwdTLCallback);
+
+	FOnTimelineFloat onWalkingRollTLCallback;
+	onWalkingRollTLCallback.BindUFunction(this, FName{ TEXT("WalkRollTLCallback") });
+	WalkRollAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("WalkRollAlphaCurve"));
+	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(0.f, 0.18f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(0.15f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(0.4f, 0.5f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(0.65f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(0.9f, 0.5f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(1.f, 0.18f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	WalkingTL->AddInterpFloat(WalkRollAlphaCurve, onWalkingRollTLCallback);
+
+	FOnTimelineEvent footstepEvent;
+	footstepEvent.BindUFunction(this, FName{ TEXT("WalkTLFootstepCallback") });
+	WalkingTL->AddEvent(0.35f, footstepEvent);
+	WalkingTL->AddEvent(0.85f, footstepEvent);
+
+	FOnTimelineEvent updateWalkEvent;
+	updateWalkEvent.BindUFunction(this, FName{ TEXT("WalkTLUpdateEvent") });
+	WalkingTL->SetTimelinePostUpdateFunc(updateWalkEvent);
+
+	//MoveMode = ECustomMovementMode::Walking;
+
+	//SlideTL = CreateDefaultSubobject<UTimelineComponent>(FName("SlideTL"));
+	//SlideTL->SetTimelineLength(1.f);
+	//SlideTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+
+	//FOnTimelineFloat onSlideTLCallback;
+	//onSlideTLCallback.BindUFunction(this, FName{ TEXT("SlideTLCallback") });
+	//SlideAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("SlideAlphaCurve"));
+	//KeyHandle = SlideAlphaCurve->FloatCurve.AddKey(0.f, 1.f);
+	//SlideAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//KeyHandle = SlideAlphaCurve->FloatCurve.AddKey(1.f, 0.f);
+	//SlideAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//SlideTL->AddInterpFloat(SlideAlphaCurve, onSlideTLCallback);
+	//FOnTimelineEvent onSlideTLFinished;
+	//onSlideTLFinished.BindUFunction(this, FName{ TEXT("FinishedSlideDelegate") });
+	//SlideTL->SetTimelineFinishedFunc(onSlideTLFinished);
 }
 
 void AGSHeroCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -810,58 +908,8 @@ void AGSHeroCharacter::CharacterInitialSpawnDefaultInventory_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Called from %s with original CharacterInitialSpawnDefaultInventory implementation."), *GetName());
 	UE_LOG(LogTemp, Warning, TEXT("%s() original implementation called. Override this in BP instead!."), *FString(__FUNCTION__));
-
-	// Call this function from BP for BP_HeroCharacter subclasses!
-	//GetWorldTimerManager().SetTimerForNextTick(this, &AGSHeroCharacter::SpawnDefaultInventory);
 }
 
-//void AGSHeroCharacter::LookUp(float Value)
-//{
-//	if (IsAlive())
-//	{
-//		AddControllerPitchInput(Value);
-//	}
-//}
-//
-//void AGSHeroCharacter::LookUpRate(float Value)
-//{
-//	if (IsAlive())
-//	{
-//		AddControllerPitchInput(Value * BaseLookUpRate * GetWorld()->DeltaTimeSeconds);
-//	}
-//}
-//
-//void AGSHeroCharacter::Turn(float Value)
-//{
-//	if (IsAlive())
-//	{
-//		AddControllerYawInput(Value);
-//	}
-//}
-//
-//void AGSHeroCharacter::TurnRate(float Value)
-//{
-//	if (IsAlive())
-//	{
-//		AddControllerYawInput(Value * BaseTurnRate * GetWorld()->DeltaTimeSeconds);
-//	}
-//}
-//
-//void AGSHeroCharacter::MoveForward(float Value)
-//{
-//	if (IsAlive())
-//	{
-//		AddMovementInput(UKismetMathLibrary::GetForwardVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
-//	}
-//}
-//
-//void AGSHeroCharacter::MoveRight(float Value)
-//{
-//	if (IsAlive())
-//	{
-//		AddMovementInput(UKismetMathLibrary::GetRightVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
-//	}
-//}
 void AGSHeroCharacter::TogglePerspective()
 {
 	// If knocked down, always be in 3rd person
@@ -1019,6 +1067,10 @@ void AGSHeroCharacter::OnRep_PlayerState()
 
 		// Simulated on proxies don't have their PlayerStates yet when BeginPlay is called so we call it again here
 		InitializeFloatingStatusBar();
+
+
+		// setup FP animation if controlled by player
+		WalkingTL->Play();
 	}
 }
 
@@ -1351,4 +1403,246 @@ void AGSHeroCharacter::ClientSyncCurrentWeapon_Implementation(AGSWeapon* InWeapo
 bool AGSHeroCharacter::ClientSyncCurrentWeapon_Validate(AGSWeapon* InWeapon)
 {
 	return true;
+}
+////////////////////////////////////////////////////////////////////////////////// FP Procedural Animation Public Pure Getter (For AnimBP Property Access)
+
+FVector AGSHeroCharacter::GetLocationLagPos() const
+{
+	return LocationLagPos;
+}
+
+FVector AGSHeroCharacter::GetWalkAnimPos() const
+{
+	return WalkAnimPos;
+}
+
+FRotator AGSHeroCharacter::GetWalkAnimRot() const
+{
+	return WalkAnimRot;
+}
+
+float AGSHeroCharacter::GetWalkAnimAlpha() const
+{
+	return WalkAnimAlpha;
+}
+
+//float AGSHeroCharacter::GetDipAlpha() const
+//{
+//	return DipAlpha;
+//}
+
+FVector AGSHeroCharacter::GetPitchOffsetPos() const
+{
+	return PitchOffsetPos;
+}
+
+FVector AGSHeroCharacter::GetCamRotOffset() const
+{
+	return CamRotOffset;
+}
+
+FRotator AGSHeroCharacter::GetCamRotCurrent() const
+{
+	return CamRotCurrent;
+}
+
+FRotator AGSHeroCharacter::GetCamRotRate() const
+{
+	return CamRotRate;
+}
+
+FRotator AGSHeroCharacter::GetInAirTilt() const
+{
+	return InAirTilt;
+}
+
+FVector AGSHeroCharacter::GetInAirOffset() const
+{
+	return InAirOffset;
+}
+
+FVector AGSHeroCharacter::GetCamOffsetCurrent() const
+{
+	return CamOffsetCurrent;
+}
+
+float AGSHeroCharacter::GetCamAnimAlpha() const
+{
+	return CamAnimAlpha;
+}
+
+float AGSHeroCharacter::GetADSAlpha() const
+{
+	return ADSAlpha;
+}
+
+////////////////////////////////////////////////////////////////////////////////// FP Procedural Animation
+void AGSHeroCharacter::WalkLeftRightTLCallback(float val)
+{
+	WalkLeftRightAlpha = val;
+}
+
+void AGSHeroCharacter::WalkFwdBwdTLCallback(float val)
+{
+	WalkFwdBwdAlpha = val;
+}
+
+void AGSHeroCharacter::WalkRollTLCallback(float val)
+{
+	WalkRollAlpha = val;
+}
+
+//void AGSHeroCharacter::WalkTLFootstepCallback()
+//{
+//	if (MoveMode != ECustomMovementMode::Sliding && FootstepCue != nullptr)
+//	{
+//		float normalizedSpeed = UKismetMathLibrary::NormalizeToRange(GetVelocity().Length(), 0.f, BaseWalkSpeed);
+//		float volumeMultiplier = FMath::Lerp(0.2f, 1.f, normalizedSpeed);
+//		float pitchMultiplier = FMath::Lerp(0.8f, 1.f, normalizedSpeed);
+//		UGameplayStatics::PlaySoundAtLocation(this, FootstepCue, GetActorLocation(), volumeMultiplier, pitchMultiplier);
+//	}
+//
+//	if (MoveMode == ECustomMovementMode::Sprinting)
+//	{
+//		Dip(4.f, 0.35f);
+//	}
+//}
+
+void AGSHeroCharacter::WalkTLUpdateEvent()
+{
+	// update walk anim position
+	float lerpedWalkAnimPosX = FMath::Lerp(-0.4f, 0.4f, WalkLeftRightAlpha);
+	float lerpedWalkAnimPosZ = FMath::Lerp(-0.35f, 0.2f, WalkFwdBwdAlpha);
+	WalkAnimPos = FVector(lerpedWalkAnimPosX, 0.f, lerpedWalkAnimPosZ);
+
+	// update walk anim rotation
+	float lerpedWalkAnimRotPitch = FMath::Lerp(1.f, -1.f, WalkRollAlpha);
+	WalkAnimRot = FRotator(lerpedWalkAnimRotPitch, 0.f, 0.f);
+
+	// get alpha of walking intensity
+	float normalizedSpeed = UKismetMathLibrary::NormalizeToRange(GetVelocity().Length(), 0.f, BaseWalkSpeed);
+	if (GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
+	{
+		WalkAnimAlpha = 0.f;
+	}
+	else
+	{
+		WalkAnimAlpha = FMath::Clamp(normalizedSpeed, 0.f, 1.f); // had to clamp this because when sprinting, this would jump up beyond 1 and the footstep is too fast
+	}
+
+	float lerpedWalkAnimAlpha = FMath::Lerp(0.f, 1.65f, WalkAnimAlpha);
+	WalkingTL->SetPlayRate(lerpedWalkAnimAlpha);
+
+	// update location lag vars
+	UpdateVelocityVars();
+
+	// update look input vars
+	UpdateLookInputVars(CamRotCurrent);
+
+	// camera animation
+	FVector camOffset;
+	float camAnimAlpha;
+	ProcCamAnim(camOffset, camAnimAlpha);
+}
+
+void AGSHeroCharacter::UpdateVelocityVars()
+{
+	float velocityDotForwardVec = FVector::DotProduct(GetVelocity(), GetActorForwardVector());
+	float velocityDotRightVec = FVector::DotProduct(GetVelocity(), GetActorRightVector());
+	float velocityDotUpVec = FVector::DotProduct(GetVelocity(), GetActorUpVector());
+
+	float Y = velocityDotForwardVec / (BaseWalkSpeed * -1.f);
+	float X = velocityDotRightVec / BaseWalkSpeed;
+	float Z = velocityDotUpVec / GetCharacterMovement()->JumpZVelocity * -1.f;
+
+	FVector resultingVec = FVector(X, Y, Z);
+	FVector scaledVec = resultingVec * 2.f;
+	FVector ClampedVectorSize = scaledVec.GetClampedToSize(0.f, 4.f);
+
+	float deltaTime = GetWorld()->DeltaTimeSeconds;
+	float interpSpeed = (1.f / deltaTime) / 6.f;
+	FVector interpedVec = FMath::VInterpTo(LocationLagPos, ClampedVectorSize, deltaTime, interpSpeed);
+	LocationLagPos = interpedVec;
+
+	interpSpeed = (1.f / deltaTime) / 12.f;
+	FRotator targetRInterp = FRotator((LocationLagPos.Z * -2.f), 0.f, 0.f);
+	FRotator interpedRot = FMath::RInterpTo(InAirTilt, targetRInterp, deltaTime, interpSpeed);
+	InAirTilt = interpedRot;
+
+	FVector targetVInterp = FVector((LocationLagPos.Z * -0.5f), 0.f, 0.f);
+	FVector interpedInAirOffsetVec = FMath::VInterpTo(InAirOffset, targetVInterp, deltaTime, interpSpeed);
+	InAirOffset = interpedInAirOffsetVec;
+}
+
+void AGSHeroCharacter::UpdateLookInputVars(FRotator CamRotPrev)
+{
+	// Step 1: determining how much to offset the viewmodel based
+	// on our current camera pitch
+	FRotator deltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation());
+	float normalizedPitch = UKismetMathLibrary::NormalizeToRange(deltaRotator.Pitch, -90.f, 90.f);
+	float lerpedY = FMath::Lerp(3.f, -3.f, normalizedPitch);
+	float lerpedZ = FMath::Lerp(2.f, -2.f, normalizedPitch);
+	PitchOffsetPos = FVector(0.f, lerpedY, lerpedZ);
+
+	float normalizedFurther = UKismetMathLibrary::NormalizeToRange(normalizedPitch, 0.f, 0.5f);
+	float clampedNormalizedPitch = FMath::Clamp(normalizedFurther, 0.f, 1.f);
+	float lerpedClampedNormalizedPitch = FMath::Lerp(15.f, 0.f, clampedNormalizedPitch);
+	FVector newRelativeLocation = FVector(lerpedClampedNormalizedPitch, FP_Root->GetRelativeLocation().Y, FP_Root->GetRelativeLocation().Z);
+	FP_Root->SetRelativeLocation(newRelativeLocation);
+
+
+	// Step 2: finding the rotation rate of our camera and smoothing
+	// the result to use for our weapon sway
+	CamRotCurrent = FirstPersonCamera->GetComponentRotation();
+	FRotator deltaCamRot = UKismetMathLibrary::NormalizedDeltaRotator(CamRotCurrent, CamRotPrev);
+	float deltaCamRotPitch, deltaCamRotYaw, deltaCamRotRoll;
+	UKismetMathLibrary::BreakRotator(deltaCamRot, deltaCamRotRoll, deltaCamRotPitch, deltaCamRotYaw);
+	float pitchInverse = deltaCamRotPitch * -1.f;
+	float clampedPitchInverse = FMath::Clamp(pitchInverse, -5.f, 5.f);
+	float clampedYaw = FMath::Clamp(deltaCamRotYaw, -5.f, 5.f);
+	FRotator newRotator = FRotator(0.f, clampedYaw, clampedPitchInverse);
+	float deltaSeconds = GetWorld()->DeltaTimeSeconds;
+	//float weaponWeight = bHasWeapon ? FMath::Clamp(CurrentWeapon->WeaponSwaySpeed, 6.f, 80.f) : 6.f;
+	//float interpSpeed = (1.f / deltaSeconds) / weaponWeight;
+	float interpSpeed = (1.f / deltaSeconds) / 36.f;
+	CamRotRate = UKismetMathLibrary::RInterpTo(CamRotRate, newRotator, deltaSeconds, interpSpeed);
+
+
+	// Step 3: figuring out the amount to offset our viewmodel by,
+	// in order to counteract the rotation of our weapon sway
+	float normalizedRoll = UKismetMathLibrary::NormalizeToRange(CamRotRate.Roll, -5.f, 5.f);
+	float lerpedRoll = FMath::Lerp(-10.f, 10.f, normalizedRoll);
+
+	float normalizedYaw = UKismetMathLibrary::NormalizeToRange(CamRotRate.Yaw, -5.f, 5.f);
+	float lerpedYaw = FMath::Lerp(-6.f, 6.f, normalizedYaw);
+	CamRotOffset = FVector(lerpedYaw, 0.f, lerpedRoll);
+}
+
+void AGSHeroCharacter::ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg)
+{
+	FTransform spine_03_Transform = FirstPersonMesh->GetSocketTransform(FName("spine_03"));
+	FTransform hand_r_Transform = FirstPersonMesh->GetSocketTransform(FName("hand_r"));
+	FVector inversedTransformLocation = UKismetMathLibrary::InverseTransformLocation(spine_03_Transform, hand_r_Transform.GetLocation());
+	FVector differenceVec = PrevHandLoc - inversedTransformLocation;
+	FVector swappedAxesVec = FVector(differenceVec.Y, differenceVec.Z, differenceVec.X);
+	CamOffset = swappedAxesVec * FVector(-1.f, 1.f, -1.f);
+	FVector multipliedVec = CamOffset * CamStrength;
+	PrevHandLoc = inversedTransformLocation;
+
+	UAnimInstance* meshAnimInstance = FirstPersonMesh->GetAnimInstance();
+	bool isAnyMontagePlaying = meshAnimInstance->IsAnyMontagePlaying();
+	auto currentActiveMontage = meshAnimInstance->GetCurrentActiveMontage();
+	bool isMontageActive = meshAnimInstance->Montage_IsActive(currentActiveMontage);
+	float lowerSelectFloat = isMontageActive ? 1.f : 0.f;
+	float upperSelectFloat = isAnyMontagePlaying ? lowerSelectFloat : 0.f;
+	float deltaSeconds = GetWorld()->DeltaTimeSeconds;
+	float interpSpeed = (1.f / deltaSeconds) / 24.f;
+	FVector interpedVec = UKismetMathLibrary::VInterpTo(CamOffsetCurrent, multipliedVec, deltaSeconds, interpSpeed);
+	CamOffsetCurrent = interpedVec.GetClampedToSize(0.f, 10.f);
+
+	interpSpeed = (1.f / deltaSeconds) / 60.f;
+	CamAnimAlpha = UKismetMathLibrary::FInterpTo(CamAnimAlpha, upperSelectFloat, deltaSeconds, interpSpeed);
+
+	CamOffsetArg = CamOffsetCurrent;
+	CamAnimAlphaArg = CamAnimAlpha;
 }

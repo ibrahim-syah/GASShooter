@@ -11,6 +11,7 @@
 
 class AGSWeapon;
 class UGameplayEffect;
+class UTimelineComponent;
 
 UENUM(BlueprintType)
 enum class EGSHeroWeaponState : uint8
@@ -227,6 +228,52 @@ public:
 
 	void SendLocalInputToASC(bool IsPressed, const EGSAbilityInputID AbilityInputID);
 
+	////////////////////////////////////////////// FP Procedural Animation Public Function
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetLocationLagPos() const;
+
+	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	//float GetCrouchAlpha() { return CrouchAlpha; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetWalkAnimPos() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetWalkAnimRot() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetWalkAnimAlpha() const;
+
+	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	//float GetDipAlpha() { return DipAlpha; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetPitchOffsetPos() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetCamRotOffset() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetCamRotCurrent() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetCamRotRate() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetInAirTilt() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetInAirOffset() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetCamOffsetCurrent() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetCamAnimAlpha() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetADSAlpha() const;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	FVector StartingThirdPersonMeshLocation;
@@ -427,4 +474,49 @@ protected:
 	void ClientSyncCurrentWeapon(AGSWeapon* InWeapon);
 	void ClientSyncCurrentWeapon_Implementation(AGSWeapon* InWeapon);
 	bool ClientSyncCurrentWeapon_Validate(AGSWeapon* InWeapon);
+
+	//////////////////////////////////////////////////////////////////// FP Procedural Animation Privates
+	float ADSAlpha;
+	float ADSSensitivityModifier{ 0.3f };
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float BaseWalkSpeed{ 600.f };
+
+	UTimelineComponent* WalkingTL = nullptr;
+
+	UCurveFloat* WalkLeftRightAlphaCurve = nullptr;
+	void WalkLeftRightTLCallback(float val);
+	float WalkLeftRightAlpha;
+
+	UCurveFloat* WalkFwdBwdAlphaCurve = nullptr;
+	void WalkFwdBwdTLCallback(float val);
+	float WalkFwdBwdAlpha;
+
+	UCurveFloat* WalkRollAlphaCurve = nullptr;
+	void WalkRollTLCallback(float val);
+	float WalkRollAlpha;
+
+	void WalkTLFootstepCallback();
+	void WalkTLUpdateEvent();
+
+	FVector WalkAnimPos;
+	FRotator WalkAnimRot;
+	float WalkAnimAlpha;
+	FVector LocationLagPos;
+	void UpdateVelocityVars();
+
+	FVector PitchOffsetPos;
+	FVector CamRotOffset;
+	FRotator CamRotCurrent;
+	FRotator CamRotRate;
+	FVector InAirOffset;
+	FRotator InAirTilt;
+	void UpdateLookInputVars(FRotator CamRotPrev);
+
+	void ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg);
+	FVector PrevHandLoc;
+	FVector CamOffset;
+	float CamStrength{ 25.f };
+	FVector CamOffsetCurrent;
+	float CamAnimAlpha{ 0.f };
 };
