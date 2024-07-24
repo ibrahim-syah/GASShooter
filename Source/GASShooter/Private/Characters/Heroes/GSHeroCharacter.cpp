@@ -232,6 +232,17 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	//FOnTimelineEvent onSlideTLFinished;
 	//onSlideTLFinished.BindUFunction(this, FName{ TEXT("FinishedSlideDelegate") });
 	//SlideTL->SetTimelineFinishedFunc(onSlideTLFinished);
+
+	ADSTL = CreateDefaultSubobject<UTimelineComponent>(FName("ADSTL"));
+	ADSTL->SetTimelineLength(1.f);
+	ADSTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+
+	//FOnTimelineFloat onADSTLCallback;
+	//onADSTLCallback.BindUFunction(this, FName{ TEXT("ADSTLCallback") });
+	//ADSAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("ADSAlphaCurve"));
+	//ADSAlphaCurve->FloatCurve.SetKeyInterpMode(ADSAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//ADSAlphaCurve->FloatCurve.SetKeyInterpMode(ADSAlphaCurve->FloatCurve.AddKey(1.f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//ADSTL->AddInterpFloat(ADSAlphaCurve, onADSTLCallback);
 }
 
 void AGSHeroCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1649,3 +1660,26 @@ void AGSHeroCharacter::ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg
 	CamOffsetArg = CamOffsetCurrent;
 	CamAnimAlphaArg = CamAnimAlpha;
 }
+
+//////// ADS
+//void AGSHeroCharacter::ADSTLCallback(float val)
+//{
+//	ADSAlpha = val;
+//	ADSAlphaLerp = FMath::Lerp(0.2f, 1.f, (1.f - ADSAlpha));
+//	float lerped1PFOV = FMath::Lerp(Default1PFOV, targeting1pfov, CurrentWeapon->ADSAlpha);
+//	UCameraComponent* camera = GetFirstPersonCameraComponent();
+//	camera->SetFieldOfView(lerpedFOV);
+//	float lerpedIntensity = FMath::Lerp(0.4f, 0.7f, CurrentWeapon->ADSAlpha);
+//	camera->PostProcessSettings.VignetteIntensity = lerpedIntensity;
+//	float lerpedFlatFov = FMath::Lerp(90.f, 25.f, CurrentWeapon->ADSAlpha);
+//	CurrentWeapon->MPC_FP_Instance->SetScalarParameterValue(FName("FOV"), lerpedFlatFov);
+//	FLinearColor OutColor;
+//	CurrentWeapon->MPC_FP_Instance->GetVectorParameterValue(FName("Offset"), OutColor);
+//	float lerpedB = FMath::Lerp(0.f, 30.f, CurrentWeapon->ADSAlpha);
+//	FLinearColor newColor = FLinearColor(OutColor.R, OutColor.G, lerpedB, OutColor.A);
+//	CurrentWeapon->MPC_FP_Instance->SetVectorParameterValue(FName("Offset"), newColor);
+//
+//	float newSpeedMultiplier = FMath::Clamp(CurrentWeapon->ADSAlphaLerp, 0.55f, 1.f);
+//	GetCharacterMovement()->MaxWalkSpeed = GetBaseWalkSpeed() * newSpeedMultiplier;
+//	CurrentWeapon->ScopeSightMesh->OnWeaponADSTLUpdateDelegate.Broadcast(ADSAlpha); // set opacity of scope if applicable
+//}

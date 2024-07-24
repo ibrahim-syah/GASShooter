@@ -476,33 +476,30 @@ protected:
 	bool ClientSyncCurrentWeapon_Validate(AGSWeapon* InWeapon);
 
 	//////////////////////////////////////////////////////////////////// FP Procedural Animation Privates
-	float ADSAlpha;
-	float ADSSensitivityModifier{ 0.3f };
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
 	float BaseWalkSpeed{ 600.f };
 
 	UTimelineComponent* WalkingTL = nullptr;
 
 	UCurveFloat* WalkLeftRightAlphaCurve = nullptr;
-	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
 	void WalkLeftRightTLCallback(float val);
 	float WalkLeftRightAlpha;
 
 	UCurveFloat* WalkFwdBwdAlphaCurve = nullptr;
-	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
 	void WalkFwdBwdTLCallback(float val);
 	float WalkFwdBwdAlpha;
 
 	UCurveFloat* WalkRollAlphaCurve = nullptr;
-	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
 	void WalkRollTLCallback(float val);
 	float WalkRollAlpha;
 
-	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
 	//void WalkTLFootstepCallback();
 
-	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
 	void WalkTLUpdateEvent();
 
 	FVector WalkAnimPos;
@@ -525,4 +522,19 @@ protected:
 	float CamStrength{ 25.f };
 	FVector CamOffsetCurrent;
 	float CamAnimAlpha{ 0.f };
+
+	/// <summary>
+	/// ADS
+	/// </summary>
+	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	UTimelineComponent* ADSTL = nullptr;
+
+	UCurveFloat* ADSAlphaCurve = nullptr;
+	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	//void ADSTLCallback(float val);
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	float ADSAlpha{ 0.f };
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	float ADSAlphaLerp{ 1.f };
 };
