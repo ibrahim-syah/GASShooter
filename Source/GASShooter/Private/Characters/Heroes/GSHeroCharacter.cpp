@@ -206,10 +206,10 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	WalkRollAlphaCurve->FloatCurve.SetKeyInterpMode(WalkRollAlphaCurve->FloatCurve.AddKey(1.f, 0.18f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
 	WalkingTL->AddInterpFloat(WalkRollAlphaCurve, onWalkingRollTLCallback);
 
-	FOnTimelineEvent footstepEvent;
+	/*FOnTimelineEvent footstepEvent;
 	footstepEvent.BindUFunction(this, FName{ TEXT("WalkTLFootstepCallback") });
 	WalkingTL->AddEvent(0.35f, footstepEvent);
-	WalkingTL->AddEvent(0.85f, footstepEvent);
+	WalkingTL->AddEvent(0.85f, footstepEvent);*/
 
 	FOnTimelineEvent updateWalkEvent;
 	updateWalkEvent.BindUFunction(this, FName{ TEXT("WalkTLUpdateEvent") });
@@ -358,6 +358,9 @@ void AGSHeroCharacter::PossessedBy(AController* NewController)
 		if (PC)
 		{
 			PC->CreateHUD();
+
+			WalkingTL->Play();
+			UE_LOG(LogTemp, Log, TEXT("Play walkingTL from posessed by"));
 		}
 
 		if (AbilitySystemComponent->GetTagCount(DeadTag) > 0)
@@ -1036,6 +1039,10 @@ void AGSHeroCharacter::OnRep_PlayerState()
 		if (PC)
 		{
 			PC->CreateHUD();
+
+			// setup FP animation if controlled by player (client only)
+			WalkingTL->Play();
+			UE_LOG(LogTemp, Log, TEXT("Play walkingTL from onrep_playerstate"));
 		}
 		
 		if (CurrentWeapon)
@@ -1067,10 +1074,6 @@ void AGSHeroCharacter::OnRep_PlayerState()
 
 		// Simulated on proxies don't have their PlayerStates yet when BeginPlay is called so we call it again here
 		InitializeFloatingStatusBar();
-
-
-		// setup FP animation if controlled by player
-		WalkingTL->Play();
 	}
 }
 

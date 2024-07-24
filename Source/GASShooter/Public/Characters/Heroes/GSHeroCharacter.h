@@ -485,18 +485,24 @@ protected:
 	UTimelineComponent* WalkingTL = nullptr;
 
 	UCurveFloat* WalkLeftRightAlphaCurve = nullptr;
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	void WalkLeftRightTLCallback(float val);
 	float WalkLeftRightAlpha;
 
 	UCurveFloat* WalkFwdBwdAlphaCurve = nullptr;
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	void WalkFwdBwdTLCallback(float val);
 	float WalkFwdBwdAlpha;
 
 	UCurveFloat* WalkRollAlphaCurve = nullptr;
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	void WalkRollTLCallback(float val);
 	float WalkRollAlpha;
 
-	void WalkTLFootstepCallback();
+	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	//void WalkTLFootstepCallback();
+
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	void WalkTLUpdateEvent();
 
 	FVector WalkAnimPos;
