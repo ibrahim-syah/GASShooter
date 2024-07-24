@@ -1492,7 +1492,7 @@ float AGSHeroCharacter::GetADSAlpha() const
 
 float AGSHeroCharacter::GetADSAlphaInversed() const
 {
-	return 1.f - ADSAlpha;
+	return ADSAlphaInversed;
 }
 
 float AGSHeroCharacter::GetADSAlphaLerp() const
@@ -1601,6 +1601,11 @@ void AGSHeroCharacter::WalkTLUpdateEvent()
 	FVector camOffset;
 	float camAnimAlpha;
 	ProcCamAnim(camOffset, camAnimAlpha);
+
+	CamAnimAlpha = CamAnimAlpha * ADSAlphaLerp;
+	//CrouchAlpha = CrouchAlpha * CrouchADSModifier_Alpha_Lerp;
+	WalkAnimAlpha = WalkAnimAlpha * ADSAlphaLerp;
+	//DipAlpha = DipAlpha * DipADSModifier_Alpha_Lerp;
 }
 
 void AGSHeroCharacter::UpdateVelocityVars()

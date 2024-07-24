@@ -550,6 +550,10 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	float ADSAlpha{ 0.f };
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	float ADSAlphaInversed;
+
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	float ADSAlphaLerp{ 1.f };
 
