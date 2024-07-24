@@ -267,10 +267,10 @@ void AGSPlayerController::SetupInputComponent()
 
 void AGSPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 {
-	APawn* GuardianPawn = GetPawn<APawn>();
-	AController* Controller = GuardianPawn ? GuardianPawn->GetController() : nullptr;
+	AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>();
+	AController* Controller = HeroCharacter ? HeroCharacter->GetController() : nullptr;
 
-	if (Controller)
+	if (Controller && HeroCharacter->IsAlive())
 	{
 		const FVector2D Value = InputActionValue.Get<FVector2D>();
 		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
@@ -278,13 +278,13 @@ void AGSPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 		if (Value.X != 0.0f)
 		{
 			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
-			GuardianPawn->AddMovementInput(MovementDirection, Value.X);
+			HeroCharacter->AddMovementInput(MovementDirection, Value.X);
 		}
 
 		if (Value.Y != 0.0f)
 		{
 			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
-			GuardianPawn->AddMovementInput(MovementDirection, Value.Y);
+			HeroCharacter->AddMovementInput(MovementDirection, Value.Y);
 		}
 	}
 }
