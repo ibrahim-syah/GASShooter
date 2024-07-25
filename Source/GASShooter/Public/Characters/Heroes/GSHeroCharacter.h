@@ -552,10 +552,10 @@ protected:
 	float ADSAlpha{ 0.f };
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
-	float ADSAlphaInversed{ 1.f };
+	float ADSAlphaInversed{ 1.f }; // basically 1 - ADSAlpha
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
-	float ADSAlphaLerp{ 1.f };
+	float ADSAlphaLerp{ 1.f }; // Same thing as ADSAlphaInversed, but clamped between 0.2f - 1.f
 
 	FTransform SightTransform;
 	FTransform RelativeHandTransform;
