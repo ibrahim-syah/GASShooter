@@ -11,7 +11,8 @@
 UGSCharacterMovementComponent::UGSCharacterMovementComponent()
 {
 	SprintSpeedMultiplier = 1.4f;
-	ADSSpeedMultiplier = 0.8f;
+	ADSSpeedMultiplier = 0.55f;
+	CrouchSpeedMultiplier = 0.65;
 	KnockedDownSpeedMultiplier = 0.4f;
 
 	KnockedDownTag = FGameplayTag::RequestGameplayTag("State.KnockedDown");
@@ -50,9 +51,15 @@ float UGSCharacterMovementComponent::GetMaxSpeed() const
 		return Owner->GetMoveSpeed() * SprintSpeedMultiplier;
 	}
 
+	// ADS and crouch can happen simultanously, so we only return the slowest of the two (ADS) when both are requested
 	if (RequestToStartADS)
 	{
 		return Owner->GetMoveSpeed() * ADSSpeedMultiplier;
+	}
+
+	if (RequestToStartCrouching)
+	{
+		return Owner->GetMoveSpeed() * CrouchSpeedMultiplier;
 	}
 
 	return Owner->GetMoveSpeed();
@@ -104,6 +111,16 @@ void UGSCharacterMovementComponent::StartAimDownSights()
 void UGSCharacterMovementComponent::StopAimDownSights()
 {
 	RequestToStartADS = false;
+}
+
+void UGSCharacterMovementComponent::StartCrouching()
+{
+	RequestToStartCrouching = true;
+}
+
+void UGSCharacterMovementComponent::StopCrouching()
+{
+	RequestToStartCrouching = false;
 }
 
 const FLyraCharacterGroundInfo& UGSCharacterMovementComponent::GetGroundInfo()

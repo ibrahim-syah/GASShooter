@@ -65,6 +65,8 @@ class GASSHOOTER_API UGSCharacterMovementComponent : public UCharacterMovementCo
 
 		// Aim Down Sights
 		uint8 SavedRequestToStartADS : 1;
+
+		uint8 SavedRequestToStartCrouching : 1;
 	};
 
 	class FGSNetworkPredictionData_Client : public FNetworkPredictionData_Client_Character
@@ -88,10 +90,14 @@ public:
 	float ADSSpeedMultiplier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speed")
+	float CrouchSpeedMultiplier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speed")
 	float KnockedDownSpeedMultiplier;
 
 	uint8 RequestToStartSprinting : 1;
 	uint8 RequestToStartADS : 1;
+	uint8 RequestToStartCrouching : 1;
 
 	FGameplayTag KnockedDownTag;
 	FGameplayTag InteractingTag;
@@ -112,6 +118,11 @@ public:
 	void StartAimDownSights();
 	UFUNCTION(BlueprintCallable, Category = "Aim Down Sights")
 	void StopAimDownSights();
+
+	UFUNCTION(BlueprintCallable, Category = "Crouch")
+	void StartCrouching();
+	UFUNCTION(BlueprintCallable, Category = "Crouch")
+	void StopCrouching();
 
 	// Returns the current ground info.  Calling this will update the ground info if it's out of date.
 	UFUNCTION(BlueprintCallable, Category = "Lyra|CharacterMovement")

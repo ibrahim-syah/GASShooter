@@ -94,17 +94,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputMappingContext* InputMappingContext = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* MoveAction = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	float ADSSensitivityScale{ 0.3f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* LookMouseAction = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* LookStickAction = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* CrouchAction = nullptr;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	//UInputAction* CrouchAction = nullptr;
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -112,6 +115,6 @@ protected:
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
 	void Input_LookStick(const FInputActionValue& InputActionValue);
-	void Input_Crouch(const FInputActionValue& InputActionValue);
-	void Input_CrouchRelease(const FInputActionValue& InputActionValue);
+	//void Input_Crouch(const FInputActionValue& InputActionValue);
+	//void Input_CrouchRelease(const FInputActionValue& InputActionValue);
 };

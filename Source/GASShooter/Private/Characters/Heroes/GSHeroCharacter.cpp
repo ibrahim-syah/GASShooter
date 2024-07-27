@@ -292,6 +292,12 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Sprint, false);
 
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Crouch, true);
+
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Crouch, false);
+
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Jump, true);
 

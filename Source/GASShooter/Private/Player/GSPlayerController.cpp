@@ -256,8 +256,8 @@ void AGSPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(LookStickAction, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick);
 
 		// Crouch
-		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::Input_Crouch);
-		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::Input_CrouchRelease);
+		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::Input_Crouch);
+		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::Input_CrouchRelease);
 	}
 	else
 	{
@@ -291,63 +291,65 @@ void AGSPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 
 void AGSPlayerController::Input_LookMouse(const FInputActionValue& InputActionValue)
 {
-	APawn* GuardianPawn = GetPawn<APawn>();
+	AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>();
 
-	if (!GuardianPawn)
+	if (!HeroCharacter)
 	{
 		return;
 	}
-
-	const FVector2D Value = InputActionValue.Get<FVector2D>();
+	float LookScaleModifier = 1.f;
+	LookScaleModifier *= FMath::Lerp(1.f, ADSSensitivityScale, HeroCharacter->GetADSAlpha());
+	const FVector2D Value = InputActionValue.Get<FVector2D>() * LookScaleModifier;
 
 	if (Value.X != 0.0f)
 	{
-		GuardianPawn->AddControllerYawInput(Value.X);
+		HeroCharacter->AddControllerYawInput(Value.X);
 	}
 
 	if (Value.Y != 0.0f)
 	{
-		GuardianPawn->AddControllerPitchInput(Value.Y);
+		HeroCharacter->AddControllerPitchInput(Value.Y);
 	}
 }
 
 void AGSPlayerController::Input_LookStick(const FInputActionValue& InputActionValue)
 {
-	APawn* GuardianPawn = GetPawn<APawn>();
+	AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>();
 
-	if (!GuardianPawn)
+	if (!HeroCharacter)
 	{
 		return;
 	}
-
-	const FVector2D Value = InputActionValue.Get<FVector2D>();
+	float LookScaleModifier = 1.f;
+	LookScaleModifier *= FMath::Lerp(1.f, ADSSensitivityScale, HeroCharacter->GetADSAlpha());
+	const FVector2D Value = InputActionValue.Get<FVector2D>() * LookScaleModifier;
 
 	const UWorld* World = GetWorld();
 	check(World);
 
 	if (Value.X != 0.0f)
 	{
-		GuardianPawn->AddControllerYawInput(Value.X * 1.f * World->GetDeltaSeconds());
+		HeroCharacter->AddControllerYawInput(Value.X * 1.f * World->GetDeltaSeconds());
 	}
 
 	if (Value.Y != 0.0f)
 	{
-		GuardianPawn->AddControllerPitchInput(Value.Y * 1.f * World->GetDeltaSeconds());
+		HeroCharacter->AddControllerPitchInput(Value.Y * 1.f * World->GetDeltaSeconds());
 	}
 }
 
-void AGSPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
-{
-	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
-	{
-		HeroCharacter->Crouch();
-	}
-}
-
-void AGSPlayerController::Input_CrouchRelease(const FInputActionValue& InputActionValue)
-{
-	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
-	{
-		HeroCharacter->UnCrouch();
-	}
-}
+//void AGSPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
+//{
+//	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
+//	{
+//		HeroCharacter->Crouch();
+//	}
+//}
+//
+//void AGSPlayerController::Input_CrouchRelease(const FInputActionValue& InputActionValue)
+//{
+//	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
+//	{
+//		HeroCharacter->UnCrouch();
+//	}
+//}
