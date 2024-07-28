@@ -157,22 +157,22 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 
 
 
-	//DipTL = CreateDefaultSubobject<UTimelineComponent>(FName("DipTL"));
-	//DipTL->SetTimelineLength(1.f);
-	//DipTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	DipTL = CreateDefaultSubobject<UTimelineComponent>(FName("DipTL"));
+	DipTL->SetTimelineLength(1.f);
+	DipTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
 
-	//FOnTimelineFloat onDipTLCallback;
-	//onDipTLCallback.BindUFunction(this, FName{ TEXT("DipTLCallback") });
-	//DipAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("DipAlphaCurve"));
-	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.2f, 0.95f);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.63f, 0.12f);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//KeyHandle = DipAlphaCurve->FloatCurve.AddKey(1.f, 0.f);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//DipTL->AddInterpFloat(DipAlphaCurve, onDipTLCallback);
+	FOnTimelineFloat onDipTLCallback;
+	onDipTLCallback.BindUFunction(this, FName{ TEXT("DipTLCallback") });
+	DipAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("DipAlphaCurve"));
+	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
+	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.2f, 0.95f);
+	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.63f, 0.12f);
+	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(1.f, 0.f);
+	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	DipTL->AddInterpFloat(DipAlphaCurve, onDipTLCallback);
 
 	WalkingTL = CreateDefaultSubobject<UTimelineComponent>(FName("WalkingTL"));
 	WalkingTL->SetTimelineLength(1.f);
@@ -240,13 +240,6 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	ADSTL = CreateDefaultSubobject<UTimelineComponent>(FName("ADSTL"));
 	ADSTL->SetTimelineLength(1.f);
 	ADSTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
-
-	//FOnTimelineFloat onADSTLCallback;
-	//onADSTLCallback.BindUFunction(this, FName{ TEXT("ADSTLCallback") });
-	//ADSAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("ADSAlphaCurve"));
-	//ADSAlphaCurve->FloatCurve.SetKeyInterpMode(ADSAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//ADSAlphaCurve->FloatCurve.SetKeyInterpMode(ADSAlphaCurve->FloatCurve.AddKey(1.f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//ADSTL->AddInterpFloat(ADSAlphaCurve, onADSTLCallback);
 }
 
 void AGSHeroCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1530,6 +1523,11 @@ float AGSHeroCharacter::GetCrouchAlpha() const
 	return CrouchAlpha;
 }
 
+float AGSHeroCharacter::GetDipAlpha() const
+{
+	return DipAlpha;
+}
+
 ////////////////////////////////////////////////////////////////////////////////// FP Procedural Animation
 void AGSHeroCharacter::WalkLeftRightTLCallback(float val)
 {
@@ -1741,4 +1739,110 @@ void AGSHeroCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
 	//TargetHalfHeight = StandHeight;
 	CrouchTL->Reverse();
+}
+
+void AGSHeroCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+	if (GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
+	{
+		// change coyote time based on speed
+		float normalizedSpeed = UKismetMathLibrary::NormalizeToRange(GetVelocity().Length(), 0.f, BaseWalkSpeed);
+		float alpha = FMath::Clamp(normalizedSpeed, 0.f, 1.f);
+		float lerpedValue = FMath::Lerp(0.25f, 1.f, alpha);
+		float time = CoyoteTime * lerpedValue;
+		GetWorldTimerManager().SetTimer(CoyoteTimerHandle, this, &ThisClass::CoyoteTimePassed, time, true);
+	}
+}
+
+void AGSHeroCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	LandingDip();
+
+	JumpsLeft = JumpsMax;
+
+	// sequence 1
+	// On landing, clear coyote timer
+	GetWorld()->GetTimerManager().ClearTimer(CoyoteTimerHandle);
+	CoyoteTimerHandle.Invalidate();
+
+	//// sequence 2
+	//if (CrouchKeyHeld && MoveMode == ECustomMovementMode::Sprinting)
+	//{
+	//	ForceStartSlide();
+	//}
+}
+
+void AGSHeroCharacter::OnJumped_Implementation()
+{
+	Super::OnJumped_Implementation();
+
+	JumpsLeft = FMath::Clamp(JumpsLeft - 1, 0, JumpsMax);
+	Dip(5.f, 1.f);
+
+
+	/*if (float remainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(CoyoteTimerHandle); remainingTime > 0.f)
+	{
+		if (JumpCue != nullptr)
+		{
+			float normalizedSpeed = UKismetMathLibrary::NormalizeToRange(GetVelocity().Length(), 0.f, BaseWalkSpeed);
+			UGameplayStatics::PlaySoundAtLocation(this, JumpCue, GetActorLocation());
+		}
+	}*/
+
+	// On jump, clear coyote timer
+	GetWorld()->GetTimerManager().ClearTimer(CoyoteTimerHandle);
+	CoyoteTimerHandle.Invalidate();
+}
+
+bool AGSHeroCharacter::CanJumpInternal_Implementation() const
+{
+	bool canJump = Super::CanJumpInternal_Implementation();
+	float remainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(CoyoteTimerHandle);
+
+	bool isTimerActive = GetWorld()->GetTimerManager().IsTimerActive(UnCrouchTimerHandle); // can't jump if there is an obstacle above the player
+	//bool isSlideTLActive = SlideTL->IsActive();
+	//bool selected = isSlideTLActive ? SlideTL->GetPlaybackPosition() > 0.25f : true;
+	//return (canJump || remainingTime > 0.f || JumpsLeft > 0) && (!isTimerActive && selected);
+	return (canJump || remainingTime > 0.f || JumpsLeft > 0) && (!isTimerActive);
+}
+
+void AGSHeroCharacter::CoyoteTimePassed()
+{
+	JumpsLeft -= 1;
+}
+
+void AGSHeroCharacter::Dip(float Speed, float Strength)
+{
+	// set dip param
+	DipTL->SetPlayRate(Speed);
+	DipStrength = Strength;
+	DipTL->PlayFromStart();
+}
+
+void AGSHeroCharacter::DipTlCallback(float val)
+{
+	// update dip alpha
+	DipAlpha = val * DipStrength;
+
+	// update fp_root
+	float lerpedZValue = FMath::Lerp(0.f, -10.f, DipAlpha);
+	FVector newLocation = FVector(FP_Root->GetRelativeLocation().X, FP_Root->GetRelativeLocation().Y, lerpedZValue);
+	FP_Root->SetRelativeLocation(newLocation);
+}
+
+void AGSHeroCharacter::LandingDip()
+{
+	float lastZVelocity = GetCharacterMovement()->GetLastUpdateVelocity().Z;
+	float ZVectorLength = FVector(0.f, 0.f, lastZVelocity).Length();
+	float jumpZvelocity = GetCharacterMovement()->JumpZVelocity;
+	float normalizedVelocity = UKismetMathLibrary::NormalizeToRange(ZVectorLength, 0.f, jumpZvelocity);
+	float clampedVelocity = FMath::Clamp(normalizedVelocity, 0.f, 1.f);
+	Dip(3.f, clampedVelocity);
+	/*if (LandCue != nullptr)
+	{
+		float normalizedSpeed = UKismetMathLibrary::NormalizeToRange(GetVelocity().Length(), 0.f, BaseWalkSpeed);
+		UGameplayStatics::PlaySoundAtLocation(this, LandCue, GetActorLocation(), clampedVelocity);
+	}*/
 }

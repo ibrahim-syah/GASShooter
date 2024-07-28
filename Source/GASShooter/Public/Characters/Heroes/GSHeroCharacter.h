@@ -295,6 +295,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetCrouchAlpha() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetDipAlpha() const;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	FVector StartingThirdPersonMeshLocation;
@@ -590,4 +593,33 @@ protected:
 	float CrouchHeight{ 68.f };
 
 	//float TargetHalfHeight{ 96.f };
+
+	/// Jump
+	int32 JumpsLeft{ 2 };
+	int32 JumpsMax{ 2 };
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = 0) override;
+	virtual void Landed(const FHitResult& Hit) override;
+	virtual void OnJumped_Implementation() override;
+	virtual bool CanJumpInternal_Implementation() const override;
+
+	FTimerHandle CoyoteTimerHandle;
+	void CoyoteTimePassed();
+	float CoyoteTime{ 0.35f };
+
+	void Dip(float Speed = 1.f, float Strength = 1.f);
+	float DipStrength{ 1.f };
+
+	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	UTimelineComponent* DipTL = nullptr;
+
+	UCurveFloat* DipAlphaCurve = nullptr;
+
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	void DipTlCallback(float val);
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	float DipAlpha;
+
+	void LandingDip();
 };
