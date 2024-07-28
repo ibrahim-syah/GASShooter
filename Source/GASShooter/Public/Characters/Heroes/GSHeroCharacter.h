@@ -292,6 +292,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetHasWeaponAlpha() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetCrouchAlpha() const;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	FVector StartingThirdPersonMeshLocation;
@@ -541,13 +544,11 @@ protected:
 	FVector CamOffsetCurrent;
 	float CamAnimAlpha{ 0.f };
 
-	/// <summary>
 	/// ADS
-	/// </summary>
 	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	UTimelineComponent* ADSTL = nullptr;
 
-	UCurveFloat* ADSAlphaCurve = nullptr;
+	//UCurveFloat* ADSAlphaCurve = nullptr;
 	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	//void ADSTLCallback(float val);
 
@@ -562,4 +563,31 @@ protected:
 
 	FTransform SightTransform;
 	FTransform RelativeHandTransform;
+
+	/// Crouch
+	//virtual void RecalculateBaseEyeHeight() override;
+	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+
+	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	UTimelineComponent* CrouchTL = nullptr;
+
+	UCurveFloat* CrouchAlphaCurve = nullptr;
+
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void CrouchTLCallback(float val);
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float CrouchAlpha{ 0.f };
+
+	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	FTimerHandle UnCrouchTimerHandle;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float StandHeight{ 96.f };
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float CrouchHeight{ 68.f };
+
+	//float TargetHalfHeight{ 96.f };
 };

@@ -10,6 +10,7 @@
 #include "Characters/Abilities/AttributeSets/GSAmmoAttributeSet.h"
 #include "Characters/Abilities/AttributeSets/GSAttributeSetBase.h"
 #include "Components/WidgetComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GASShooter/GASShooterGameModeBase.h"
@@ -45,6 +46,8 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	Inventory = FGSHeroInventory();
 	ReviveDuration = 4.0f;
 
+	GetCapsuleComponent()->InitCapsuleSize(35.f, StandHeight);
+
 	GetCharacterMovement()->GravityScale = 1.5f;
 	GetCharacterMovement()->MaxAcceleration = 3072.f;
 	GetCharacterMovement()->BrakingFrictionFactor = 1.f;
@@ -53,6 +56,7 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	GetCharacterMovement()->JumpZVelocity = 750.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 200.f;
 	GetCharacterMovement()->AirControl = 0.275f;
+	GetCharacterMovement()->SetCrouchedHalfHeight(CrouchHeight);
 	
 	ThirdPersonCameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
 	ThirdPersonCameraBoom->SetupAttachment(RootComponent);
@@ -138,18 +142,18 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 
 
 	////////////////////// FP Procedural animation setup
-	//CrouchTL = CreateDefaultSubobject<UTimelineComponent>(FName("CrouchTL"));
-	//CrouchTL->SetTimelineLength(0.2f);
-	//CrouchTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	CrouchTL = CreateDefaultSubobject<UTimelineComponent>(FName("CrouchTL"));
+	CrouchTL->SetTimelineLength(0.2f);
+	CrouchTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
 
-	//FOnTimelineFloat onCrouchTLCallback;
-	//onCrouchTLCallback.BindUFunction(this, FName{ TEXT("CrouchTLCallback") });
-	//CrouchAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("CrouchAlphaCurve"));
-	//FKeyHandle KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
-	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.2f, 1.f);
-	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//CrouchTL->AddInterpFloat(CrouchAlphaCurve, onCrouchTLCallback);
+	FOnTimelineFloat onCrouchTLCallback;
+	onCrouchTLCallback.BindUFunction(this, FName{ TEXT("CrouchTLCallback") });
+	CrouchAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("CrouchAlphaCurve"));
+	FKeyHandle KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
+	CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.2f, 1.f);
+	CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	CrouchTL->AddInterpFloat(CrouchAlphaCurve, onCrouchTLCallback);
 
 
 
@@ -1521,6 +1525,11 @@ float AGSHeroCharacter::GetHasWeaponAlpha() const
 	return CurrentWeapon ? 1.f : 0.f;
 }
 
+float AGSHeroCharacter::GetCrouchAlpha() const
+{
+	return CrouchAlpha;
+}
+
 ////////////////////////////////////////////////////////////////////////////////// FP Procedural Animation
 void AGSHeroCharacter::WalkLeftRightTLCallback(float val)
 {
@@ -1607,11 +1616,6 @@ void AGSHeroCharacter::WalkTLUpdateEvent()
 	FVector camOffset;
 	float camAnimAlpha;
 	ProcCamAnim(camOffset, camAnimAlpha);
-
-	CamAnimAlpha = CamAnimAlpha * ADSAlphaLerp;
-	//CrouchAlpha = CrouchAlpha * CrouchADSModifier_Alpha_Lerp;
-	WalkAnimAlpha = WalkAnimAlpha * ADSAlphaLerp;
-	//DipAlpha = DipAlpha * DipADSModifier_Alpha_Lerp;
 }
 
 void AGSHeroCharacter::UpdateVelocityVars()
@@ -1714,4 +1718,27 @@ void AGSHeroCharacter::ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg
 
 	CamOffsetArg = CamOffsetCurrent;
 	CamAnimAlphaArg = CamAnimAlpha;
+}
+
+void AGSHeroCharacter::CrouchTLCallback(float val)
+{
+	CrouchAlpha = val;
+
+	//float newCapsuleHalfHeight = FMath::Lerp(StandHeight, CrouchHeight, CrouchAlpha);
+	//GetCapsuleComponent()->SetCapsuleHalfHeight(newCapsuleHalfHeight, true);
+
+	//float newCrouchedEyeHeight = FMath::Lerp(BaseEyeHeight, CrouchedEyeHeight, CrouchAlpha);
+	//BaseEyeHeight = newCrouchedEyeHeight;
+}
+
+void AGSHeroCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
+{
+	//TargetHalfHeight = CrouchHeight;
+	CrouchTL->Play();
+}
+
+void AGSHeroCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
+{
+	//TargetHalfHeight = StandHeight;
+	CrouchTL->Reverse();
 }
