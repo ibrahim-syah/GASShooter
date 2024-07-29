@@ -142,37 +142,29 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 
 
 	////////////////////// FP Procedural animation setup
-	CrouchTL = CreateDefaultSubobject<UTimelineComponent>(FName("CrouchTL"));
-	CrouchTL->SetTimelineLength(0.2f);
-	CrouchTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	//CrouchTL = CreateDefaultSubobject<UTimelineComponent>(FName("CrouchTL"));
+	//CrouchTL->SetTimelineLength(0.2f);
+	//CrouchTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
 
-	FOnTimelineFloat onCrouchTLCallback;
-	onCrouchTLCallback.BindUFunction(this, FName{ TEXT("CrouchTLCallback") });
-	CrouchAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("CrouchAlphaCurve"));
-	FKeyHandle KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
-	CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	KeyHandle = CrouchAlphaCurve->FloatCurve.AddKey(0.2f, 1.f);
-	CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	CrouchTL->AddInterpFloat(CrouchAlphaCurve, onCrouchTLCallback);
+	//FOnTimelineFloat onCrouchTLCallback;
+	//onCrouchTLCallback.BindUFunction(this, FName{ TEXT("CrouchTLCallback") });
+	//CrouchAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("CrouchAlphaCurve"));
+	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(CrouchAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(CrouchAlphaCurve->FloatCurve.AddKey(0.2f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//CrouchTL->AddInterpFloat(CrouchAlphaCurve, onCrouchTLCallback);
 
+	//DipTL = CreateDefaultSubobject<UTimelineComponent>(FName("DipTL"));
+	//DipTL->SetTimelineLength(1.f);
+	//DipTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
 
-
-	DipTL = CreateDefaultSubobject<UTimelineComponent>(FName("DipTL"));
-	DipTL->SetTimelineLength(1.f);
-	DipTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
-
-	FOnTimelineFloat onDipTLCallback;
-	onDipTLCallback.BindUFunction(this, FName{ TEXT("DipTLCallback") });
-	DipAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("DipAlphaCurve"));
-	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.f, 0.f);
-	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.2f, 0.95f);
-	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(0.63f, 0.12f);
-	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	KeyHandle = DipAlphaCurve->FloatCurve.AddKey(1.f, 0.f);
-	DipAlphaCurve->FloatCurve.SetKeyInterpMode(KeyHandle, ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	DipTL->AddInterpFloat(DipAlphaCurve, onDipTLCallback);
+	//FOnTimelineFloat onDipTLCallback;
+	//onDipTLCallback.BindUFunction(this, FName{ TEXT("DipTLCallback") });
+	//DipAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("DipAlphaCurve"));
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(0.2f, 0.95f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(0.63f, 0.12f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(1.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
+	//DipTL->AddInterpFloat(DipAlphaCurve, onDipTLCallback);
 
 	WalkingTL = CreateDefaultSubobject<UTimelineComponent>(FName("WalkingTL"));
 	WalkingTL->SetTimelineLength(1.f);
@@ -1731,14 +1723,18 @@ void AGSHeroCharacter::CrouchTLCallback(float val)
 
 void AGSHeroCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
+	UE_LOG(LogTemp, Log, TEXT("OnStartCrouch called"));
+
 	//TargetHalfHeight = CrouchHeight;
-	CrouchTL->Play();
+	//CrouchTL->Play();
 }
 
 void AGSHeroCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
 {
+	UE_LOG(LogTemp, Log, TEXT("OnEndCrouch called"));
+
 	//TargetHalfHeight = StandHeight;
-	CrouchTL->Reverse();
+	//CrouchTL->Reverse();
 }
 
 void AGSHeroCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
@@ -1813,24 +1809,26 @@ void AGSHeroCharacter::CoyoteTimePassed()
 	JumpsLeft -= 1;
 }
 
-void AGSHeroCharacter::Dip(float Speed, float Strength)
-{
-	// set dip param
-	DipTL->SetPlayRate(Speed);
-	DipStrength = Strength;
-	DipTL->PlayFromStart();
-}
+//void AGSHeroCharacter::Dip(float Speed, float Strength)
+//{
+//	// set dip param
+//	/*DipTL->SetPlayRate(Speed);
+//	DipStrength = Strength;
+//	DipTL->PlayFromStart();*/
+//
+//	UE_LOG(LogTemp, Log, TEXT("Dip() called"));
+//}
 
-void AGSHeroCharacter::DipTlCallback(float val)
-{
-	// update dip alpha
-	DipAlpha = val * DipStrength;
-
-	// update fp_root
-	float lerpedZValue = FMath::Lerp(0.f, -10.f, DipAlpha);
-	FVector newLocation = FVector(FP_Root->GetRelativeLocation().X, FP_Root->GetRelativeLocation().Y, lerpedZValue);
-	FP_Root->SetRelativeLocation(newLocation);
-}
+//void AGSHeroCharacter::DipTlCallback(float val)
+//{
+//	// update dip alpha
+//	DipAlpha = val * DipStrength;
+//
+//	// update fp_root
+//	float lerpedZValue = FMath::Lerp(0.f, -10.f, DipAlpha);
+//	FVector newLocation = FVector(FP_Root->GetRelativeLocation().X, FP_Root->GetRelativeLocation().Y, lerpedZValue);
+//	FP_Root->SetRelativeLocation(newLocation);
+//}
 
 void AGSHeroCharacter::LandingDip()
 {

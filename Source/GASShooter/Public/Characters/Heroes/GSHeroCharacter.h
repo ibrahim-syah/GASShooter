@@ -607,16 +607,19 @@ protected:
 	void CoyoteTimePassed();
 	float CoyoteTime{ 0.35f };
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	void Dip(float Speed = 1.f, float Strength = 1.f);
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	float DipStrength{ 1.f };
 
-	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
-	UTimelineComponent* DipTL = nullptr;
+	//UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	//UTimelineComponent* DipTL = nullptr;
 
-	UCurveFloat* DipAlphaCurve = nullptr;
+	//UCurveFloat* DipAlphaCurve = nullptr;
 
-	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
-	void DipTlCallback(float val);
+	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	//void DipTlCallback(float val);
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	float DipAlpha;
