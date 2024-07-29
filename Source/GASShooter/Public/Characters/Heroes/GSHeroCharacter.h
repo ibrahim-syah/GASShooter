@@ -551,10 +551,6 @@ protected:
 	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	UTimelineComponent* ADSTL = nullptr;
 
-	//UCurveFloat* ADSAlphaCurve = nullptr;
-	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
-	//void ADSTLCallback(float val);
-
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
 	float ADSAlpha{ 0.f };
 
@@ -568,22 +564,29 @@ protected:
 	FTransform RelativeHandTransform;
 
 	/// Crouch
-	//virtual void RecalculateBaseEyeHeight() override;
-	virtual void OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
-	virtual void OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust) override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void CustomCrouch();
 
-	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
-	UTimelineComponent* CrouchTL = nullptr;
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void CustomUnCrouch();
 
-	UCurveFloat* CrouchAlphaCurve = nullptr;
+	void OnCheckCanStand();
 
-	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
-	void CrouchTLCallback(float val);
+	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void StandUpFromCrouch();
+
+	bool bIsCrouching;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	bool SetIsCrouching(bool newState);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	bool GetIsCrouching() const;
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	float CrouchAlpha{ 0.f };
 
-	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	FTimerHandle UnCrouchTimerHandle;
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
@@ -591,8 +594,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	float CrouchHeight{ 68.f };
-
-	//float TargetHalfHeight{ 96.f };
 
 	/// Jump
 	int32 JumpsLeft{ 2 };
@@ -609,17 +610,6 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	void Dip(float Speed = 1.f, float Strength = 1.f);
-
-	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
-	float DipStrength{ 1.f };
-
-	//UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
-	//UTimelineComponent* DipTL = nullptr;
-
-	//UCurveFloat* DipAlphaCurve = nullptr;
-
-	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
-	//void DipTlCallback(float val);
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	float DipAlpha;

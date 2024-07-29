@@ -153,19 +153,6 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	//CrouchAlphaCurve->FloatCurve.SetKeyInterpMode(CrouchAlphaCurve->FloatCurve.AddKey(0.2f, 1.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
 	//CrouchTL->AddInterpFloat(CrouchAlphaCurve, onCrouchTLCallback);
 
-	//DipTL = CreateDefaultSubobject<UTimelineComponent>(FName("DipTL"));
-	//DipTL->SetTimelineLength(1.f);
-	//DipTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
-
-	//FOnTimelineFloat onDipTLCallback;
-	//onDipTLCallback.BindUFunction(this, FName{ TEXT("DipTLCallback") });
-	//DipAlphaCurve = CreateDefaultSubobject<UCurveFloat>(FName("DipAlphaCurve"));
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(0.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(0.2f, 0.95f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(0.63f, 0.12f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//DipAlphaCurve->FloatCurve.SetKeyInterpMode(DipAlphaCurve->FloatCurve.AddKey(1.f, 0.f), ERichCurveInterpMode::RCIM_Cubic, /*auto*/true);
-	//DipTL->AddInterpFloat(DipAlphaCurve, onDipTLCallback);
-
 	WalkingTL = CreateDefaultSubobject<UTimelineComponent>(FName("WalkingTL"));
 	WalkingTL->SetTimelineLength(1.f);
 	WalkingTL->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
@@ -1710,33 +1697,6 @@ void AGSHeroCharacter::ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg
 	CamAnimAlphaArg = CamAnimAlpha;
 }
 
-void AGSHeroCharacter::CrouchTLCallback(float val)
-{
-	CrouchAlpha = val;
-
-	//float newCapsuleHalfHeight = FMath::Lerp(StandHeight, CrouchHeight, CrouchAlpha);
-	//GetCapsuleComponent()->SetCapsuleHalfHeight(newCapsuleHalfHeight, true);
-
-	//float newCrouchedEyeHeight = FMath::Lerp(BaseEyeHeight, CrouchedEyeHeight, CrouchAlpha);
-	//BaseEyeHeight = newCrouchedEyeHeight;
-}
-
-void AGSHeroCharacter::OnStartCrouch(float HeightAdjust, float ScaledHeightAdjust)
-{
-	UE_LOG(LogTemp, Log, TEXT("OnStartCrouch called"));
-
-	//TargetHalfHeight = CrouchHeight;
-	//CrouchTL->Play();
-}
-
-void AGSHeroCharacter::OnEndCrouch(float HeightAdjust, float ScaledHeightAdjust)
-{
-	UE_LOG(LogTemp, Log, TEXT("OnEndCrouch called"));
-
-	//TargetHalfHeight = StandHeight;
-	//CrouchTL->Reverse();
-}
-
 void AGSHeroCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
@@ -1749,6 +1709,51 @@ void AGSHeroCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uin
 		float time = CoyoteTime * lerpedValue;
 		GetWorldTimerManager().SetTimer(CoyoteTimerHandle, this, &ThisClass::CoyoteTimePassed, time, true);
 	}
+}
+
+void AGSHeroCharacter::CustomUnCrouch()
+{
+	GetWorldTimerManager().SetTimer(UnCrouchTimerHandle, this, &ThisClass::OnCheckCanStand, (1.f / 30.f), true);
+}
+
+void AGSHeroCharacter::OnCheckCanStand()
+{
+
+	FVector sphereTraceLocation = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHeight));
+
+	FVector SphereStart = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHeight));
+
+	float lerpedHeight = FMath::Lerp(0.f, (StandHeight - CrouchHeight), CrouchAlpha);
+	float scaledLerpedHeight = lerpedHeight * 1.1f;
+	float sphereEndZ = (GetActorLocation().Z + CrouchHeight) + scaledLerpedHeight;
+	FVector SphereEnd = FVector(GetActorLocation().X, GetActorLocation().Y, sphereEndZ);
+	float sphereRadius = GetCapsuleComponent()->GetScaledCapsuleRadius() * 0.5f;
+	FCollisionShape Sphere{ FCollisionShape::MakeSphere(sphereRadius) };
+	FCollisionQueryParams Params = FCollisionQueryParams();
+	Params.AddIgnoredActor(this);
+	FHitResult HitResult;
+
+	bool isStuck = GetWorld()->SweepSingleByChannel(HitResult, SphereStart, SphereEnd, FQuat::Identity, ECollisionChannel::ECC_Visibility, Sphere, Params);
+	bool isFalling = GetCharacterMovement()->IsFalling();
+
+	if (!isStuck || isFalling)
+	{
+		SetIsCrouching(false);
+		StandUpFromCrouch();
+		GetWorld()->GetTimerManager().ClearTimer(UnCrouchTimerHandle);
+		UnCrouchTimerHandle.Invalidate();
+	}
+}
+
+bool AGSHeroCharacter::SetIsCrouching(bool newState)
+{
+	bIsCrouching = newState;
+	return bIsCrouching;
+}
+
+bool AGSHeroCharacter::GetIsCrouching() const
+{
+	return bIsCrouching;
 }
 
 void AGSHeroCharacter::Landed(const FHitResult& Hit)
@@ -1808,27 +1813,6 @@ void AGSHeroCharacter::CoyoteTimePassed()
 {
 	JumpsLeft -= 1;
 }
-
-//void AGSHeroCharacter::Dip(float Speed, float Strength)
-//{
-//	// set dip param
-//	/*DipTL->SetPlayRate(Speed);
-//	DipStrength = Strength;
-//	DipTL->PlayFromStart();*/
-//
-//	UE_LOG(LogTemp, Log, TEXT("Dip() called"));
-//}
-
-//void AGSHeroCharacter::DipTlCallback(float val)
-//{
-//	// update dip alpha
-//	DipAlpha = val * DipStrength;
-//
-//	// update fp_root
-//	float lerpedZValue = FMath::Lerp(0.f, -10.f, DipAlpha);
-//	FVector newLocation = FVector(FP_Root->GetRelativeLocation().X, FP_Root->GetRelativeLocation().Y, lerpedZValue);
-//	FP_Root->SetRelativeLocation(newLocation);
-//}
 
 void AGSHeroCharacter::LandingDip()
 {
