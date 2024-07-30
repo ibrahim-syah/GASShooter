@@ -12,7 +12,8 @@
 				"Engine",
 				"AIModule",
 				"GameplayAbilities",
-				"UMG"
+				"UMG",
+				"CoreUObject"
 			]
 		}
 	],
