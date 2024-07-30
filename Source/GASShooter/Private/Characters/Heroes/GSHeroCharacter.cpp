@@ -46,7 +46,7 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	Inventory = FGSHeroInventory();
 	ReviveDuration = 4.0f;
 
-	GetCapsuleComponent()->InitCapsuleSize(35.f, StandHeight);
+	GetCapsuleComponent()->InitCapsuleSize(35.f, StandHalfHeight);
 
 	GetCharacterMovement()->GravityScale = 1.5f;
 	GetCharacterMovement()->MaxAcceleration = 3072.f;
@@ -56,7 +56,6 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	GetCharacterMovement()->JumpZVelocity = 750.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 200.f;
 	GetCharacterMovement()->AirControl = 0.275f;
-	GetCharacterMovement()->SetCrouchedHalfHeight(CrouchHeight);
 	
 	ThirdPersonCameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
 	ThirdPersonCameraBoom->SetupAttachment(RootComponent);
@@ -1718,16 +1717,15 @@ void AGSHeroCharacter::CustomUnCrouch()
 
 void AGSHeroCharacter::OnCheckCanStand()
 {
+	FVector SphereStart = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHalfHeight));
 
-	FVector sphereTraceLocation = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHeight));
+	//float lerpedHeight = FMath::Lerp(0.f, (StandHalfHeight - CrouchHalfHeight), CrouchAlpha);
+	//float scaledLerpedHeight = lerpedHeight * 1.1f;
+	//float sphereEndZ = (GetActorLocation().Z + CrouchHalfHeight) + scaledLerpedHeight;
 
-	FVector SphereStart = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHeight));
-
-	float lerpedHeight = FMath::Lerp(0.f, (StandHeight - CrouchHeight), CrouchAlpha);
-	float scaledLerpedHeight = lerpedHeight * 1.1f;
-	float sphereEndZ = (GetActorLocation().Z + CrouchHeight) + scaledLerpedHeight;
+	float sphereEndZ = SphereStart.Z + (StandHalfHeight * 1.2 - CrouchHalfHeight);
 	FVector SphereEnd = FVector(GetActorLocation().X, GetActorLocation().Y, sphereEndZ);
-	float sphereRadius = GetCapsuleComponent()->GetScaledCapsuleRadius() * 0.5f;
+	float sphereRadius = GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.1f;
 	FCollisionShape Sphere{ FCollisionShape::MakeSphere(sphereRadius) };
 	FCollisionQueryParams Params = FCollisionQueryParams();
 	Params.AddIgnoredActor(this);

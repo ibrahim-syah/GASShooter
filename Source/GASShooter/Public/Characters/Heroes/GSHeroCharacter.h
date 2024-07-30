@@ -589,11 +589,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	FTimerHandle UnCrouchTimerHandle;
 
-	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
-	float StandHeight{ 96.f };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float StandHalfHeight{ 86.f };
 
-	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
-	float CrouchHeight{ 68.f };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float CrouchHalfHeight{ 55.f };
 
 	/// Jump
 	int32 JumpsLeft{ 2 };
