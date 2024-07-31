@@ -15,6 +15,14 @@
 				"UMG",
 				"CoreUObject"
 			]
+		},
+		{
+			"Name": "GASShooterEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"AdditionalDependencies": [
+				"UnrealEd"
+			]
 		}
 	],
 	"Plugins": [
