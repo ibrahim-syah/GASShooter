@@ -228,6 +228,8 @@ void AGSHeroCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	// Only replicate CurrentWeapon to simulated clients and manually sync CurrentWeeapon with Owner when we're ready.
 	// This allows us to predict weapon changing.
 	DOREPLIFETIME_CONDITION(AGSHeroCharacter, CurrentWeapon, COND_SimulatedOnly);
+
+	DOREPLIFETIME(AGSHeroCharacter, bIsCrouching);
 }
 
 // Called to bind functionality to input

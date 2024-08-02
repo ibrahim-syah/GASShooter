@@ -575,6 +575,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	void StandUpFromCrouch();
 
+	UPROPERTY(Replicated)
 	bool bIsCrouching;
 
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
