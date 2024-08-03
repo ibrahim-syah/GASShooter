@@ -128,6 +128,9 @@ protected:
 	FText CharacterName;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
+	UAnimMontage* ReviveMontage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
 	UAnimMontage* DeathMontage;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")

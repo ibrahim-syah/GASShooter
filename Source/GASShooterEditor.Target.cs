@@ -11,5 +11,7 @@ public class GASShooterEditorTarget : TargetRules
         DefaultBuildSettings = BuildSettingsVersion.V4;
         IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
         ExtraModuleNames.AddRange( new string[] { "GASShooter" } );
-	}
+
+        ExtraModuleNames.AddRange( new string[] { "GASShooterEditor" });
+    }
 }
