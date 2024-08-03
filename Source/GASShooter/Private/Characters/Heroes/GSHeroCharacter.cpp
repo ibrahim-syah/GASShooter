@@ -69,6 +69,17 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	FP_Root = CreateDefaultSubobject<USceneComponent>(TEXT("FP_Root"));
 	FP_Root->SetupAttachment(RootComponent);
 
+	FirstPersonLegMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("FirstPersonLegMesh"));
+	FirstPersonLegMesh->SetupAttachment(FP_Root);
+	FirstPersonLegMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FirstPersonLegMesh->SetCollisionProfileName(FName("NoCollision"));
+	FirstPersonLegMesh->bReceivesDecals = false;
+	FirstPersonLegMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	FirstPersonLegMesh->CastShadow = false;
+	FirstPersonLegMesh->SetVisibility(false, true);
+	FirstPersonLegMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	FirstPersonLegMesh->SetRelativeLocation(FVector(0.f, 0.f, -79.5f));
+
 	Mesh_Root = CreateDefaultSubobject<USpringArmComponent>(TEXT("Mesh_Root"));
 	Mesh_Root->SetupAttachment(FP_Root);
 	Mesh_Root->SetRelativeLocation(FVector(0.f, 0.f, 70.f));
@@ -938,9 +949,11 @@ void AGSHeroCharacter::SetPerspective(bool InIsFirstPersonPerspective)
 
 			GetMesh()->SetVisibility(false, true);
 			FirstPersonMesh->SetVisibility(true, true);
+			FirstPersonLegMesh->SetVisibility(true, true);
 
 			// Move third person mesh back so that the shadow doesn't look disconnected
-			GetMesh()->SetRelativeLocation(StartingThirdPersonMeshLocation + FVector(-120.0f, 0.0f, 0.0f));
+			GetMesh()->SetRelativeLocation(StartingThirdPersonMeshLocation + FVector(InvisibleBodyMeshOffsetLength, 0.0f, 0.0f));
+			FirstPersonLegMesh->SetRelativeLocation(StartingThirdPersonMeshLocation + FVector(InvisibleBodyMeshOffsetLength, 0.0f, 0.0f));
 		}
 		else
 		{
@@ -949,10 +962,12 @@ void AGSHeroCharacter::SetPerspective(bool InIsFirstPersonPerspective)
 			PC->SetViewTarget(this);
 
 			FirstPersonMesh->SetVisibility(false, true);
+			FirstPersonLegMesh->SetVisibility(false, true);
 			GetMesh()->SetVisibility(true, true);
 
 			// Reset the third person mesh
 			GetMesh()->SetRelativeLocation(StartingThirdPersonMeshLocation);
+			FirstPersonLegMesh->SetRelativeLocation(StartingThirdPersonMeshLocation);
 		}
 	}
 }

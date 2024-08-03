@@ -358,6 +358,12 @@ protected:
 	USkeletalMeshComponent* FirstPersonMesh;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USkeletalMeshComponent* FirstPersonLegMesh;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float InvisibleBodyMeshOffsetLength{ -120.f };
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USpringArmComponent* Cam_Root = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
