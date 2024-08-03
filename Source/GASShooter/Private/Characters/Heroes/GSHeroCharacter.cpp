@@ -46,7 +46,7 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	Inventory = FGSHeroInventory();
 	ReviveDuration = 4.0f;
 
-	GetCapsuleComponent()->InitCapsuleSize(35.f, StandHalfHeight);
+	GetCapsuleComponent()->InitCapsuleSize(35.f, 96.f);
 
 	GetCharacterMovement()->GravityScale = 1.5f;
 	GetCharacterMovement()->MaxAcceleration = 3072.f;
@@ -228,8 +228,6 @@ void AGSHeroCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	// Only replicate CurrentWeapon to simulated clients and manually sync CurrentWeeapon with Owner when we're ready.
 	// This allows us to predict weapon changing.
 	DOREPLIFETIME_CONDITION(AGSHeroCharacter, CurrentWeapon, COND_SimulatedOnly);
-
-	DOREPLIFETIME(AGSHeroCharacter, bIsCrouching);
 }
 
 // Called to bind functionality to input
@@ -1712,49 +1710,49 @@ void AGSHeroCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uin
 	}
 }
 
-void AGSHeroCharacter::CustomUnCrouch()
-{
-	GetWorldTimerManager().SetTimer(UnCrouchTimerHandle, this, &ThisClass::OnCheckCanStand, (1.f / 30.f), true);
-}
-
-void AGSHeroCharacter::OnCheckCanStand()
-{
-	FVector SphereStart = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHalfHeight));
-
-	//float lerpedHeight = FMath::Lerp(0.f, (StandHalfHeight - CrouchHalfHeight), CrouchAlpha);
-	//float scaledLerpedHeight = lerpedHeight * 1.1f;
-	//float sphereEndZ = (GetActorLocation().Z + CrouchHalfHeight) + scaledLerpedHeight;
-
-	float sphereEndZ = SphereStart.Z + (StandHalfHeight * 1.2 - CrouchHalfHeight);
-	FVector SphereEnd = FVector(GetActorLocation().X, GetActorLocation().Y, sphereEndZ);
-	float sphereRadius = GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.1f;
-	FCollisionShape Sphere{ FCollisionShape::MakeSphere(sphereRadius) };
-	FCollisionQueryParams Params = FCollisionQueryParams();
-	Params.AddIgnoredActor(this);
-	FHitResult HitResult;
-
-	bool isStuck = GetWorld()->SweepSingleByChannel(HitResult, SphereStart, SphereEnd, FQuat::Identity, ECollisionChannel::ECC_Visibility, Sphere, Params);
-	bool isFalling = GetCharacterMovement()->IsFalling();
-
-	if (!isStuck || isFalling)
-	{
-		SetIsCrouching(false);
-		StandUpFromCrouch();
-		GetWorld()->GetTimerManager().ClearTimer(UnCrouchTimerHandle);
-		UnCrouchTimerHandle.Invalidate();
-	}
-}
-
-bool AGSHeroCharacter::SetIsCrouching(bool newState)
-{
-	bIsCrouching = newState;
-	return bIsCrouching;
-}
-
-bool AGSHeroCharacter::GetIsCrouching() const
-{
-	return bIsCrouching;
-}
+//void AGSHeroCharacter::CustomUnCrouch()
+//{
+//	GetWorldTimerManager().SetTimer(UnCrouchTimerHandle, this, &ThisClass::OnCheckCanStand, (1.f / 30.f), true);
+//}
+//
+//void AGSHeroCharacter::OnCheckCanStand()
+//{
+//	FVector SphereStart = FVector(GetActorLocation().X, GetActorLocation().Y, (GetActorLocation().Z + CrouchHalfHeight));
+//
+//	//float lerpedHeight = FMath::Lerp(0.f, (StandHalfHeight - CrouchHalfHeight), CrouchAlpha);
+//	//float scaledLerpedHeight = lerpedHeight * 1.1f;
+//	//float sphereEndZ = (GetActorLocation().Z + CrouchHalfHeight) + scaledLerpedHeight;
+//
+//	float sphereEndZ = SphereStart.Z + (StandHalfHeight * 1.2 - CrouchHalfHeight);
+//	FVector SphereEnd = FVector(GetActorLocation().X, GetActorLocation().Y, sphereEndZ);
+//	float sphereRadius = GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.1f;
+//	FCollisionShape Sphere{ FCollisionShape::MakeSphere(sphereRadius) };
+//	FCollisionQueryParams Params = FCollisionQueryParams();
+//	Params.AddIgnoredActor(this);
+//	FHitResult HitResult;
+//
+//	bool isStuck = GetWorld()->SweepSingleByChannel(HitResult, SphereStart, SphereEnd, FQuat::Identity, ECollisionChannel::ECC_Visibility, Sphere, Params);
+//	bool isFalling = GetCharacterMovement()->IsFalling();
+//
+//	if (!isStuck || isFalling)
+//	{
+//		SetIsCrouching(false);
+//		StandUpFromCrouch();
+//		GetWorld()->GetTimerManager().ClearTimer(UnCrouchTimerHandle);
+//		UnCrouchTimerHandle.Invalidate();
+//	}
+//}
+//
+//bool AGSHeroCharacter::SetIsCrouching(bool newState)
+//{
+//	bIsCrouching = newState;
+//	return bIsCrouching;
+//}
+//
+//bool AGSHeroCharacter::GetIsCrouching() const
+//{
+//	return bIsCrouching;
+//}
 
 void AGSHeroCharacter::Landed(const FHitResult& Hit)
 {
@@ -1802,11 +1800,10 @@ bool AGSHeroCharacter::CanJumpInternal_Implementation() const
 	bool canJump = Super::CanJumpInternal_Implementation();
 	float remainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(CoyoteTimerHandle);
 
-	bool isTimerActive = GetWorld()->GetTimerManager().IsTimerActive(UnCrouchTimerHandle); // can't jump if there is an obstacle above the player
 	//bool isSlideTLActive = SlideTL->IsActive();
 	//bool selected = isSlideTLActive ? SlideTL->GetPlaybackPosition() > 0.25f : true;
 	//return (canJump || remainingTime > 0.f || JumpsLeft > 0) && (!isTimerActive && selected);
-	return (canJump || remainingTime > 0.f || JumpsLeft > 0) && (!isTimerActive);
+	return (canJump || remainingTime > 0.f || JumpsLeft > 0);
 }
 
 void AGSHeroCharacter::CoyoteTimePassed()

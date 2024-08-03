@@ -564,7 +564,7 @@ protected:
 	FTransform RelativeHandTransform;
 
 	/// Crouch
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	/*UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	void CustomCrouch();
 
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
@@ -582,19 +582,19 @@ protected:
 	bool SetIsCrouching(bool newState);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
-	bool GetIsCrouching() const;
+	bool GetIsCrouching() const;*/
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	float CrouchAlpha{ 0.f };
 
-	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	/*UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	FTimerHandle UnCrouchTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
 	float StandHalfHeight{ 86.f };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
-	float CrouchHalfHeight{ 55.f };
+	float CrouchHalfHeight{ 55.f };*/
 
 	/// Jump
 	int32 JumpsLeft{ 2 };
