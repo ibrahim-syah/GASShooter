@@ -11,6 +11,7 @@
 
 class AGSWeapon;
 class UGameplayEffect;
+class UTimelineComponent;
 
 UENUM(BlueprintType)
 enum class EGSHeroWeaponState : uint8
@@ -142,10 +143,6 @@ public:
 	/**
 	* Enhanced Inputs
 	*/
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* ConfirmAction;
 
@@ -180,13 +177,10 @@ public:
 	class UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* CrouchAction;
 
 	/**
 	* Interactable interface
@@ -236,6 +230,73 @@ public:
 	FSimpleMulticastDelegate* GetTargetCancelInteractionDelegate(UPrimitiveComponent* InteractionComponent) override;
 
 	void SendLocalInputToASC(bool IsPressed, const EGSAbilityInputID AbilityInputID);
+
+	////////////////////////////////////////////// FP Procedural Animation Public Function
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetLocationLagPos() const;
+
+	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	//float GetCrouchAlpha() { return CrouchAlpha; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetWalkAnimPos() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetWalkAnimRot() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetWalkAnimAlpha() const;
+
+	//UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	//float GetDipAlpha() { return DipAlpha; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetPitchOffsetPos() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetCamRotOffset() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetCamRotCurrent() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetCamRotRate() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FRotator GetInAirTilt() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetInAirOffset() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetCamOffsetCurrent() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetCamAnimAlpha() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetADSAlpha() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetADSAlphaInversed() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetADSAlphaLerp() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FTransform GetSightTransform() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FTransform GetRelativeHandTransform() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetHasWeaponAlpha() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetCrouchAlpha() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	float GetDipAlpha() const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
@@ -295,6 +356,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USkeletalMeshComponent* FirstPersonMesh;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USkeletalMeshComponent* FirstPersonLegMesh;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float InvisibleBodyMeshOffsetLength{ -120.f };
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USpringArmComponent* Cam_Root = nullptr;
@@ -362,24 +429,6 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void CharacterInitialSpawnDefaultInventory();
 
-	// Mouse
-	void LookUp(float Value);
-
-	// Gamepad
-	void LookUpRate(float Value);
-
-	// Mouse
-	void Turn(float Value);
-
-	// Gamepad
-	void TurnRate(float Value);
-
-	// Mouse + Gamepad
-	void MoveForward(float Value);
-
-	// Mouse + Gamepad
-	void MoveRight(float Value);
-
 	// Toggles between perspectives
 	void TogglePerspective();
 
@@ -418,10 +467,6 @@ protected:
 
 	void InvokeAbility(const FInputActionValue& Value, EGSAbilityInputID Id, bool IsActive);
 
-	void Move(const FInputActionValue& Value);
-
-	void Look(const FInputActionValue& Value);
-
 	UFUNCTION()
 	virtual void CurrentWeaponPrimaryClipAmmoChanged(int32 OldPrimaryClipAmmo, int32 NewPrimaryClipAmmo);
 
@@ -459,4 +504,122 @@ protected:
 	void ClientSyncCurrentWeapon(AGSWeapon* InWeapon);
 	void ClientSyncCurrentWeapon_Implementation(AGSWeapon* InWeapon);
 	bool ClientSyncCurrentWeapon_Validate(AGSWeapon* InWeapon);
+
+	//////////////////////////////////////////////////////////////////// FP Procedural Animation Privates
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
+	float BaseWalkSpeed{ 600.f };
+
+	UTimelineComponent* WalkingTL = nullptr;
+
+	UCurveFloat* WalkLeftRightAlphaCurve = nullptr;
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
+	void WalkLeftRightTLCallback(float val);
+	float WalkLeftRightAlpha;
+
+	UCurveFloat* WalkFwdBwdAlphaCurve = nullptr;
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
+	void WalkFwdBwdTLCallback(float val);
+	float WalkFwdBwdAlpha;
+
+	UCurveFloat* WalkRollAlphaCurve = nullptr;
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
+	void WalkRollTLCallback(float val);
+	float WalkRollAlpha;
+
+	//UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
+	//void WalkTLFootstepCallback();
+
+	UFUNCTION(Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Walk")
+	void WalkTLUpdateEvent();
+
+	FVector WalkAnimPos;
+	FRotator WalkAnimRot;
+	float WalkAnimAlpha;
+	FVector LocationLagPos;
+	void UpdateVelocityVars();
+
+	FVector PitchOffsetPos;
+	FVector CamRotOffset;
+	FRotator CamRotCurrent;
+	FRotator CamRotRate;
+	FVector InAirOffset;
+	FRotator InAirTilt;
+	void UpdateLookInputVars(FRotator CamRotPrev);
+
+	void ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg);
+	FVector PrevHandLoc;
+	FVector CamOffset;
+	float CamStrength{ 25.f };
+	FVector CamOffsetCurrent;
+	float CamAnimAlpha{ 0.f };
+
+	/// ADS
+	UPROPERTY(BlueprintReadonly, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	UTimelineComponent* ADSTL = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	float ADSAlpha{ 0.f };
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	float ADSAlphaInversed{ 1.f }; // basically 1 - ADSAlpha
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|ADS")
+	float ADSAlphaLerp{ 1.f }; // Same thing as ADSAlphaInversed, but clamped between 0.2f - 1.f
+
+	FTransform SightTransform;
+	FTransform RelativeHandTransform;
+
+	/// Crouch
+	/*UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void CustomCrouch();
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void CustomUnCrouch();
+
+	void OnCheckCanStand();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	void StandUpFromCrouch();
+
+	UPROPERTY(Replicated)
+	bool bIsCrouching;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	bool SetIsCrouching(bool newState);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	bool GetIsCrouching() const;*/
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float CrouchAlpha{ 0.f };
+
+	/*UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	FTimerHandle UnCrouchTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float StandHalfHeight{ 86.f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Crouch")
+	float CrouchHalfHeight{ 55.f };*/
+
+	/// Jump
+	int32 JumpsLeft{ 2 };
+	int32 JumpsMax{ 2 };
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = 0) override;
+	virtual void Landed(const FHitResult& Hit) override;
+	virtual void OnJumped_Implementation() override;
+	virtual bool CanJumpInternal_Implementation() const override;
+
+	FTimerHandle CoyoteTimerHandle;
+	void CoyoteTimePassed();
+	float CoyoteTime{ 0.35f };
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	void Dip(float Speed = 1.f, float Strength = 1.f);
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	float DipAlpha;
+
+	void LandingDip();
 };

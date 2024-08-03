@@ -8,6 +8,9 @@
 #include "GSPlayerController.generated.h"
 
 class UPaperSprite;
+class UInputMappingContext;
+class UInputAction;
+struct FInputActionValue;
 
 /**
  * 
@@ -84,4 +87,34 @@ protected:
 	void ServerKill();
 	void ServerKill_Implementation();
 	bool ServerKill_Validate();
+
+protected:
+
+	/** Input Mapping Context to be used for player input */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputMappingContext* InputMappingContext = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* MoveAction = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	float ADSSensitivityScale{ 0.3f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* LookMouseAction = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* LookStickAction = nullptr;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	//UInputAction* CrouchAction = nullptr;
+
+	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
+
+	void Input_Move(const FInputActionValue& InputActionValue);
+	void Input_LookMouse(const FInputActionValue& InputActionValue);
+	void Input_LookStick(const FInputActionValue& InputActionValue);
+	//void Input_Crouch(const FInputActionValue& InputActionValue);
+	//void Input_CrouchRelease(const FInputActionValue& InputActionValue);
 };

@@ -8,6 +8,10 @@
 #include "Characters/Heroes/GSHeroCharacter.h"
 #include "Player/GSPlayerState.h"
 #include "UI/GSHUDWidget.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
+#include "GameFramework/Pawn.h"
 #include "Weapons/GSWeapon.h"
 
 void AGSPlayerController::CreateHUD()
@@ -221,3 +225,131 @@ bool AGSPlayerController::ServerKill_Validate()
 {
 	return true;
 }
+
+void AGSPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// get the enhanced input subsystem
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		// add the mapping context so we get controls
+		Subsystem->AddMappingContext(InputMappingContext, 0);
+
+		UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
+	}
+}
+
+void AGSPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
+		//EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ThisClass::StopMove);
+
+		// Looking
+		EnhancedInputComponent->BindAction(LookMouseAction, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse);
+		EnhancedInputComponent->BindAction(LookStickAction, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick);
+
+		// Crouch
+		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ThisClass::Input_Crouch);
+		//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ThisClass::Input_CrouchRelease);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void AGSPlayerController::Input_Move(const FInputActionValue& InputActionValue)
+{
+	AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>();
+	AController* Controller = HeroCharacter ? HeroCharacter->GetController() : nullptr;
+
+	if (Controller && HeroCharacter->IsAlive())
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (Value.X != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+			HeroCharacter->AddMovementInput(MovementDirection, Value.X);
+		}
+
+		if (Value.Y != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			HeroCharacter->AddMovementInput(MovementDirection, Value.Y);
+		}
+	}
+}
+
+void AGSPlayerController::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+	AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>();
+
+	if (!HeroCharacter)
+	{
+		return;
+	}
+	float LookScaleModifier = 1.f;
+	LookScaleModifier *= FMath::Lerp(1.f, ADSSensitivityScale, HeroCharacter->GetADSAlpha());
+	const FVector2D Value = InputActionValue.Get<FVector2D>() * LookScaleModifier;
+
+	if (Value.X != 0.0f)
+	{
+		HeroCharacter->AddControllerYawInput(Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		HeroCharacter->AddControllerPitchInput(Value.Y);
+	}
+}
+
+void AGSPlayerController::Input_LookStick(const FInputActionValue& InputActionValue)
+{
+	AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>();
+
+	if (!HeroCharacter)
+	{
+		return;
+	}
+	float LookScaleModifier = 1.f;
+	LookScaleModifier *= FMath::Lerp(1.f, ADSSensitivityScale, HeroCharacter->GetADSAlpha());
+	const FVector2D Value = InputActionValue.Get<FVector2D>() * LookScaleModifier;
+
+	const UWorld* World = GetWorld();
+	check(World);
+
+	if (Value.X != 0.0f)
+	{
+		HeroCharacter->AddControllerYawInput(Value.X * 1.f * World->GetDeltaSeconds());
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		HeroCharacter->AddControllerPitchInput(Value.Y * 1.f * World->GetDeltaSeconds());
+	}
+}
+
+//void AGSPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
+//{
+//	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
+//	{
+//		HeroCharacter->Crouch();
+//	}
+//}
+//
+//void AGSPlayerController::Input_CrouchRelease(const FInputActionValue& InputActionValue)
+//{
+//	if (AGSHeroCharacter* HeroCharacter = GetPawn<AGSHeroCharacter>())
+//	{
+//		HeroCharacter->UnCrouch();
+//	}
+//}
