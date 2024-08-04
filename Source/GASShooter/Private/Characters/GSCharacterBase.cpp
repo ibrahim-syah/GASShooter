@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "UI/GSDamageTextWidgetComponent.h"
+#include "UI/GSDamageMarkerWidgetComponent.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitializer) :
@@ -32,6 +33,12 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	if (!DamageNumberClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageNumberClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
+
+	DamageMarkerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/WC_DamageMarker.WC_DamageMarker_C"));
+	if (!DamageMarkerClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageMarkerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
 }
 
@@ -120,9 +127,9 @@ void AGSCharacterBase::FinishDying()
 	Destroy();
 }
 
-void AGSCharacterBase::AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags)
+void AGSCharacterBase::AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags, FVector HitLocation)
 {
-	DamageNumberQueue.Add(FGSDamageNumber(Damage, DamageNumberTags));
+	DamageNumberQueue.Add(FGSDamageNumber(Damage, DamageNumberTags, HitLocation));
 
 	if (!GetWorldTimerManager().IsTimerActive(DamageNumberTimer))
 	{
@@ -318,6 +325,12 @@ void AGSCharacterBase::ShowDamageNumber()
 		DamageText->RegisterComponent();
 		DamageText->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		DamageText->SetDamageText(DamageNumberQueue[0].DamageAmount, DamageNumberQueue[0].Tags);
+
+		UGSDamageMarkerWidgetComponent* DamageMarker = NewObject<UGSDamageMarkerWidgetComponent>(this, DamageMarkerClass);
+		DamageMarker->RegisterComponent();
+		DamageMarker->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageMarker->SetRelativeLocation(GetRootComponent()->GetComponentTransform().InverseTransformPosition(DamageNumberQueue[0].HitLocation));
+		DamageMarker->SetDamageMarker(DamageNumberQueue[0].Tags);
 
 		if (DamageNumberQueue.Num() < 1)
 		{

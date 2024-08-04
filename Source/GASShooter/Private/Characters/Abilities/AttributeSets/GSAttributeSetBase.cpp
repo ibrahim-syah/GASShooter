@@ -149,7 +149,16 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 							DamageNumberTags.AddTagFast(HeadShotTag);
 						}
 
-						PC->ShowDamageNumber(LocalDamageDone, TargetCharacter, DamageNumberTags);
+						const FVector hitLocation = Data.EffectSpec.GetContext().GetHitResult() ?
+							FVector(
+								Data.EffectSpec.GetContext().GetHitResult()->Location.X,
+								Data.EffectSpec.GetContext().GetHitResult()->Location.Y,
+								Data.EffectSpec.GetContext().GetHitResult()->Location.Z
+								)
+							:
+							FVector(0.f);
+
+						PC->ShowDamageNumber(LocalDamageDone, TargetCharacter, DamageNumberTags, hitLocation);
 					}
 				}
 

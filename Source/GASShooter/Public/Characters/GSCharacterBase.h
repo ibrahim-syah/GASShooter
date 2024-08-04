@@ -18,12 +18,13 @@ struct GASSHOOTER_API FGSDamageNumber
 	GENERATED_USTRUCT_BODY()
 
 	float DamageAmount;
+	FVector HitLocation;
 
 	FGameplayTagContainer Tags;
 
 	FGSDamageNumber() {}
 
-	FGSDamageNumber(float InDamageAmount, FGameplayTagContainer InTags) : DamageAmount(InDamageAmount)
+	FGSDamageNumber(float InDamageAmount, FGameplayTagContainer InTags, FVector InHitLocation) : DamageAmount(InDamageAmount), HitLocation(InHitLocation)
 	{
 		// Copy tag container
 		Tags.AppendTags(InTags);
@@ -64,7 +65,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSCharacter")
 	virtual void FinishDying();
 
-	virtual void AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags);
+	virtual void AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
 
 	// I moved perspective up the base because even a minion pawn or tank pawn etc might have a perspective before and as you possess them.
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter")
@@ -154,6 +155,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
 	TSubclassOf<class UGSDamageTextWidgetComponent> DamageNumberClass;
+
+	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSDamageMarkerWidgetComponent> DamageMarkerClass;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
