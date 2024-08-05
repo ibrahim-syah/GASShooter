@@ -10,6 +10,7 @@
 #include "TimerManager.h"
 #include "GSCharacterBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterBaseHitReactDelegate, EGSHitReactDirection, Direction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AGSCharacterBase*, Character);
 
 USTRUCT(BlueprintType)
@@ -129,7 +130,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSCharacter|Attributes")
 	float GetMoveSpeedBaseValue() const;
 
+	//////////////////////// Hit React
+	// Set the Hit React direction
+	UPROPERTY(BlueprintAssignable, Category = "GASShooter|GSCharacter")
+	FCharacterBaseHitReactDelegate ShowHitReact;
+
+	UFUNCTION(BlueprintCallable)
+	EGSHitReactDirection GetHitReactDirection(const FVector& ImpactPoint);
+
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	virtual void PlayHitReact(FGameplayTag HitDirection, AActor* DamageCauser);
+	virtual void PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser);
+	virtual bool PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser);
+
 protected:
+	FGameplayTag HitDirectionFrontTag;
+	FGameplayTag HitDirectionBackTag;
+	FGameplayTag HitDirectionRightTag;
+	FGameplayTag HitDirectionLeftTag;
 	FGameplayTag DeadTag;
 	FGameplayTag EffectRemoveOnDeathTag;
 

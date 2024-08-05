@@ -14,6 +14,21 @@
 #define COLLISION_INTERACTABLE					ECollisionChannel::ECC_GameTraceChannel5
 
 UENUM(BlueprintType)
+enum class EGSHitReactDirection : uint8
+{
+	// 0
+	None			UMETA(DisplayName = "None"),
+	// 1
+	Left 			UMETA(DisplayName = "Left"),
+	// 2
+	Front 			UMETA(DisplayName = "Front"),
+	// 3
+	Right			UMETA(DisplayName = "Right"),
+	// 4
+	Back			UMETA(DisplayName = "Back")
+};
+
+UENUM(BlueprintType)
 enum class EGSAbilityInputID : uint8
 {
 	// 0 None
