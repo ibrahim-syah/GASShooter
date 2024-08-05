@@ -57,6 +57,11 @@ public:
 	void ShowDamageNumber_Implementation(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
 	bool ShowDamageNumber_Validate(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
 
+	UFUNCTION(Client, Reliable, WithValidation)
+	void ShowKillMarker(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation);
+	void ShowKillMarker_Implementation(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation);
+	bool ShowKillMarker_Validate(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation);
+
 	// Simple way to RPC to the client the countdown until they respawn from the GameMode. Will be latency amount of out sync with the Server.
 	UFUNCTION(Client, Reliable, WithValidation)
 	void SetRespawnCountdown(float RespawnTimeRemaining);

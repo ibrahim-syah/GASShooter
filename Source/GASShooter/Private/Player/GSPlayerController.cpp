@@ -164,6 +164,16 @@ bool AGSPlayerController::ShowDamageNumber_Validate(float DamageAmount, AGSChara
 	return true;
 }
 
+void AGSPlayerController::ShowKillMarker_Implementation(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+{
+	GetPawn<AGSCharacterBase>()->AddKillMarker(KillMarkerTag, KillLocation);
+}
+
+bool AGSPlayerController::ShowKillMarker_Validate(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+{
+	return true;
+}
+
 void AGSPlayerController::SetRespawnCountdown_Implementation(float RespawnTimeRemaining)
 {
 	if (UIHUDWidget)

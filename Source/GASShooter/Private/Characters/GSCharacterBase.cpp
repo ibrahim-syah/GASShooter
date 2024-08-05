@@ -12,6 +12,7 @@
 #include "Sound/SoundCue.h"
 #include "UI/GSDamageTextWidgetComponent.h"
 #include "UI/GSDamageMarkerWidgetComponent.h"
+#include "UI/GSKillMarkerWidgetComponent.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitializer) :
@@ -29,16 +30,22 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag("Effect.RemoveOnDeath");
 
 	// Hardcoding to avoid having to manually set for every Blueprint child class
-	DamageNumberClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/WC_DamageText.WC_DamageText_C"));
+	DamageNumberClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/DamageNumbers/WC_DamageText.WC_DamageText_C"));
 	if (!DamageNumberClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageNumberClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
 
-	DamageMarkerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/WC_DamageMarker.WC_DamageMarker_C"));
+	DamageMarkerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/HitMarker/WC_DamageMarker.WC_DamageMarker_C"));
 	if (!DamageMarkerClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageMarkerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
+
+	KillMarkerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/KillMarker/WC_KillMarker.WC_KillMarker_C"));
+	if (!KillMarkerClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find KillMarkerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
 }
 
@@ -133,7 +140,17 @@ void AGSCharacterBase::AddDamageNumber(float Damage, FGameplayTagContainer Damag
 
 	if (!GetWorldTimerManager().IsTimerActive(DamageNumberTimer))
 	{
-		GetWorldTimerManager().SetTimer(DamageNumberTimer, this, &AGSCharacterBase::ShowDamageNumber, 0.1, true, 0.0f);
+		GetWorldTimerManager().SetTimer(DamageNumberTimer, this, &AGSCharacterBase::ShowDamageNumber, 0.05, true, 0.0f);
+	}
+}
+
+void AGSCharacterBase::AddKillMarker(FGameplayTagContainer KillMarkerTags, FVector KillLocation)
+{
+	KillMarkerQueue.Add(FGSKillMarker(KillMarkerTags, KillLocation));
+
+	if (!GetWorldTimerManager().IsTimerActive(KillMarkerTimer))
+	{
+		GetWorldTimerManager().SetTimer(KillMarkerTimer, this, &AGSCharacterBase::ShowKillMarker, 0.1f, true, 0.0f);
 	}
 }
 
@@ -338,6 +355,25 @@ void AGSCharacterBase::ShowDamageNumber()
 		}
 
 		DamageNumberQueue.RemoveAt(0);
+	}
+}
+
+void AGSCharacterBase::ShowKillMarker()
+{
+	if (KillMarkerQueue.Num() > 0 && IsValid(this))
+	{
+		UGSKillMarkerWidgetComponent* KillMarker = NewObject<UGSKillMarkerWidgetComponent>(this, KillMarkerClass);
+		KillMarker->RegisterComponent();
+		KillMarker->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		KillMarker->SetRelativeLocation(GetRootComponent()->GetComponentTransform().InverseTransformPosition(KillMarkerQueue[0].KilledLocation));
+		KillMarker->SetKillMarker(KillMarkerQueue[0].Tags);
+
+		if (KillMarkerQueue.Num() < 1)
+		{
+			GetWorldTimerManager().ClearTimer(KillMarkerTimer);
+		}
+
+		KillMarkerQueue.RemoveAt(0);
 	}
 }
 

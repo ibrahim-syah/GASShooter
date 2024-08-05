@@ -154,7 +154,7 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 								Data.EffectSpec.GetContext().GetHitResult()->Location.X,
 								Data.EffectSpec.GetContext().GetHitResult()->Location.Y,
 								Data.EffectSpec.GetContext().GetHitResult()->Location.Z
-								)
+							)
 							:
 							FVector(0.f);
 
@@ -186,6 +186,19 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 						InfoGold.Attribute = UGSAttributeSetBase::GetGoldAttribute();
 
 						Source->ApplyGameplayEffectToSelf(GEBounty, 1.0f, Source->MakeEffectContext());
+
+						AGSPlayerController* PC = Cast<AGSPlayerController>(SourceController);
+						if (PC)
+						{
+							FGameplayTagContainer KillMarkerTags;
+
+							if (Data.EffectSpec.GetDynamicAssetTags().HasTag(HeadShotTag))
+							{
+								KillMarkerTags.AddTagFast(HeadShotTag);
+							}
+
+							PC->ShowKillMarker(TargetCharacter, KillMarkerTags, TargetCharacter->GetActorLocation());
+						}
 					}
 				}
 			}
