@@ -73,7 +73,9 @@ void UGSDamageExecutionCalc::Execute_Implementation(const FGameplayEffectCustomE
 
 	// Check for headshot. There's only one character mesh here, but you could have a function on your Character class to return the head bone name
 	const FHitResult* Hit = Spec.GetContext().GetHitResult();
-	if (AssetTags.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Effect.Damage.CanHeadShot"))) && Hit && Hit->BoneName == "b_head" || Hit->BoneName == "head")
+	const FGameplayTag canHeadShotTag = FGameplayTag::RequestGameplayTag(FName("Effect.Damage.CanHeadShot"));
+	const bool hasTag = AssetTags.HasTagExact(canHeadShotTag);
+	if (hasTag && Hit != NULL && Hit->BoneName == "head")
 	{
 		UnmitigatedDamage *= HeadShotMultiplier;
 		FGameplayEffectSpec* MutableSpec = ExecutionParams.GetOwningSpecForPreExecuteMod();
