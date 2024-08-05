@@ -107,10 +107,10 @@ void AGSCharacterBase::Die()
 	}
 
 	//TODO replace with a locally executed GameplayCue
-	if (DeathSound)
+	/*if (DeathSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
-	}
+	}*/
 
 	if (DeathMontage)
 	{

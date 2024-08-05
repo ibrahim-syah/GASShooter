@@ -134,8 +134,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
 	UAnimMontage* DeathMontage;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
-	class USoundCue* DeathSound;
+	//UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
+	//class USoundBase* DeathSound;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Camera")
 	bool bIsFirstPersonPerspective;
