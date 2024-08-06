@@ -151,15 +151,35 @@ void AGSPlayerController::SetHUDReticle(TSubclassOf<UGSHUDReticle> ReticleClass)
 	}
 }
 
-void AGSPlayerController::ShowDamageNumber_Implementation(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags)
+void AGSPlayerController::ShowDamageNumber_Implementation(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation)
 {
 	if (IsValid(TargetCharacter))
 	{
-		TargetCharacter->AddDamageNumber(DamageAmount, DamageNumberTags);
+		TargetCharacter->AddDamageNumber(DamageAmount, DamageNumberTags, HitLocation);
 	}
 }
 
-bool AGSPlayerController::ShowDamageNumber_Validate(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags)
+bool AGSPlayerController::ShowDamageNumber_Validate(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation)
+{
+	return true;
+}
+
+void AGSPlayerController::ShowKillMarker_Implementation(FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+{
+	GetPawn<AGSCharacterBase>()->AddKillMarker(KillMarkerTag, KillLocation);
+}
+
+bool AGSPlayerController::ShowKillMarker_Validate(FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+{
+	return true;
+}
+
+void AGSPlayerController::ShowDamageIndicator_Implementation(FVector SourceLocation)
+{
+	GetPawn<AGSCharacterBase>()->AddDamageIndicator(SourceLocation);
+}
+
+bool AGSPlayerController::ShowDamageIndicator_Validate(FVector SourceLocation)
 {
 	return true;
 }

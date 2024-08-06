@@ -133,6 +133,10 @@ public:
 
 protected:
 	FGameplayTag HeadShotTag;
+	FGameplayTag HitDirectionFrontTag;
+	FGameplayTag HitDirectionBackTag;
+	FGameplayTag HitDirectionRightTag;
+	FGameplayTag HitDirectionLeftTag;
 
 	// Helper function to proportionally adjust the value of an attribute when it's associated max attribute changes.
 	// (i.e. When MaxHealth increases, Health increases by an amount that maintains the same percentage as before)

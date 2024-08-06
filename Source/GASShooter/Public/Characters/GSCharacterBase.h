@@ -10,6 +10,7 @@
 #include "TimerManager.h"
 #include "GSCharacterBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterBaseHitReactDelegate, EGSHitReactDirection, Direction);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterDiedDelegate, AGSCharacterBase*, Character);
 
 USTRUCT(BlueprintType)
@@ -18,15 +19,49 @@ struct GASSHOOTER_API FGSDamageNumber
 	GENERATED_USTRUCT_BODY()
 
 	float DamageAmount;
+	FVector HitLocation;
 
 	FGameplayTagContainer Tags;
 
 	FGSDamageNumber() {}
 
-	FGSDamageNumber(float InDamageAmount, FGameplayTagContainer InTags) : DamageAmount(InDamageAmount)
+	FGSDamageNumber(float InDamageAmount, FGameplayTagContainer InTags, FVector InHitLocation) : DamageAmount(InDamageAmount), HitLocation(InHitLocation)
 	{
 		// Copy tag container
 		Tags.AppendTags(InTags);
+	}
+};
+
+USTRUCT(BlueprintType)
+struct GASSHOOTER_API FGSKillMarker
+{
+	GENERATED_USTRUCT_BODY()
+
+	FVector KilledLocation;
+
+	FGameplayTagContainer Tags;
+
+	FGSKillMarker() {}
+
+	FGSKillMarker(FGameplayTagContainer InTags, FVector InKillLocation) : KilledLocation(InKillLocation)
+	{
+		// Copy tag container
+		Tags.AppendTags(InTags);
+	}
+};
+
+USTRUCT(BlueprintType)
+struct GASSHOOTER_API FGSDamageIndicator
+{
+	GENERATED_USTRUCT_BODY()
+
+	FVector SourceLocation;
+
+	FGSDamageIndicator() {}
+
+	FGSDamageIndicator(FVector InSourceLocation) : SourceLocation(InSourceLocation)
+	{
+		
 	}
 };
 
@@ -64,7 +99,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSCharacter")
 	virtual void FinishDying();
 
-	virtual void AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags);
+	virtual void AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
+	virtual void AddKillMarker(FGameplayTagContainer KillMarkerTags, FVector KillLocation);
+	virtual void AddDamageIndicator(FVector SourceLocation);
 
 	// I moved perspective up the base because even a minion pawn or tank pawn etc might have a perspective before and as you possess them.
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter")
@@ -109,12 +146,35 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSCharacter|Attributes")
 	float GetMoveSpeedBaseValue() const;
 
+	//////////////////////// Hit React
+	// Set the Hit React direction
+	UPROPERTY(BlueprintAssignable, Category = "GASShooter|GSCharacter")
+	FCharacterBaseHitReactDelegate ShowHitReact;
+
+	UFUNCTION(BlueprintCallable)
+	EGSHitReactDirection GetHitReactDirection(const FVector& ImpactPoint);
+
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	virtual void PlayHitReact(FGameplayTag HitDirection, AActor* DamageCauser);
+	virtual void PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser);
+	virtual bool PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser);
+
 protected:
+	FGameplayTag HitDirectionFrontTag;
+	FGameplayTag HitDirectionBackTag;
+	FGameplayTag HitDirectionRightTag;
+	FGameplayTag HitDirectionLeftTag;
 	FGameplayTag DeadTag;
 	FGameplayTag EffectRemoveOnDeathTag;
 
 	TArray<FGSDamageNumber> DamageNumberQueue;
 	FTimerHandle DamageNumberTimer;
+
+	TArray<FGSKillMarker> KillMarkerQueue;
+	FTimerHandle KillMarkerTimer;
+
+	TArray<FGSDamageIndicator> DamageIndicatorQueue;
+	FTimerHandle DamageIndicatorTimer;
 	
 	// Reference to the ASC. It will live on the PlayerState or here if the character doesn't have a PlayerState.
 	UPROPERTY()
@@ -133,8 +193,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
 	UAnimMontage* DeathMontage;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
-	class USoundCue* DeathSound;
+	//UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
+	//class USoundBase* DeathSound;
 
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Camera")
 	bool bIsFirstPersonPerspective;
@@ -155,6 +215,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
 	TSubclassOf<class UGSDamageTextWidgetComponent> DamageNumberClass;
 
+	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSDamageMarkerWidgetComponent> DamageMarkerClass;
+
+	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSKillMarkerWidgetComponent> KillMarkerClass;
+
+	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSHUDDamageIndicator> DamageIndicatorClass;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -169,6 +238,10 @@ protected:
 	virtual void AddStartupEffects();
 
 	virtual void ShowDamageNumber();
+
+	virtual void ShowKillMarker();
+
+	virtual void ShowDamageIndicator();
 
 
 	/**

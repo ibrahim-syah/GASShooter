@@ -11,6 +11,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "UI/GSDamageTextWidgetComponent.h"
+#include "UI/GSDamageMarkerWidgetComponent.h"
+#include "UI/GSKillMarkerWidgetComponent.h"
+#include "UI/GSHUDDamageIndicator.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitializer) :
@@ -24,14 +27,36 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	bAlwaysRelevant = true;
 
 	// Cache tags
+	HitDirectionFrontTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Front"));
+	HitDirectionBackTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Back"));
+	HitDirectionRightTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Right"));
+	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
 	DeadTag = FGameplayTag::RequestGameplayTag("State.Dead");
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag("Effect.RemoveOnDeath");
 
 	// Hardcoding to avoid having to manually set for every Blueprint child class
-	DamageNumberClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/WC_DamageText.WC_DamageText_C"));
+	DamageNumberClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/DamageNumbers/WC_DamageText.WC_DamageText_C"));
 	if (!DamageNumberClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageNumberClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
+
+	DamageMarkerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/HitMarker/WC_DamageMarker.WC_DamageMarker_C"));
+	if (!DamageMarkerClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageMarkerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
+
+	KillMarkerClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/KillMarker/WC_KillMarker.WC_KillMarker_C"));
+	if (!KillMarkerClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find KillMarkerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
+
+	DamageIndicatorClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/DamageIndicator/UI_DamageIndicator.UI_DamageIndicator_C"));
+	if (!DamageIndicatorClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageIndicatorClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
 }
 
@@ -100,10 +125,10 @@ void AGSCharacterBase::Die()
 	}
 
 	//TODO replace with a locally executed GameplayCue
-	if (DeathSound)
+	/*if (DeathSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
-	}
+	}*/
 
 	if (DeathMontage)
 	{
@@ -120,13 +145,33 @@ void AGSCharacterBase::FinishDying()
 	Destroy();
 }
 
-void AGSCharacterBase::AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags)
+void AGSCharacterBase::AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags, FVector HitLocation)
 {
-	DamageNumberQueue.Add(FGSDamageNumber(Damage, DamageNumberTags));
+	DamageNumberQueue.Add(FGSDamageNumber(Damage, DamageNumberTags, HitLocation));
 
 	if (!GetWorldTimerManager().IsTimerActive(DamageNumberTimer))
 	{
-		GetWorldTimerManager().SetTimer(DamageNumberTimer, this, &AGSCharacterBase::ShowDamageNumber, 0.1, true, 0.0f);
+		GetWorldTimerManager().SetTimer(DamageNumberTimer, this, &AGSCharacterBase::ShowDamageNumber, 0.05, true, 0.0f);
+	}
+}
+
+void AGSCharacterBase::AddKillMarker(FGameplayTagContainer KillMarkerTags, FVector KillLocation)
+{
+	KillMarkerQueue.Add(FGSKillMarker(KillMarkerTags, KillLocation));
+
+	if (!GetWorldTimerManager().IsTimerActive(KillMarkerTimer))
+	{
+		GetWorldTimerManager().SetTimer(KillMarkerTimer, this, &AGSCharacterBase::ShowKillMarker, 0.1f, true, 0.0f);
+	}
+}
+
+void AGSCharacterBase::AddDamageIndicator(FVector SourceLocation)
+{
+	DamageIndicatorQueue.Add(FGSDamageIndicator(SourceLocation));
+
+	if (!GetWorldTimerManager().IsTimerActive(DamageIndicatorTimer))
+	{
+		GetWorldTimerManager().SetTimer(DamageIndicatorTimer, this, &AGSCharacterBase::ShowDamageIndicator, 0.1f, true, 0.0f);
 	}
 }
 
@@ -319,12 +364,54 @@ void AGSCharacterBase::ShowDamageNumber()
 		DamageText->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		DamageText->SetDamageText(DamageNumberQueue[0].DamageAmount, DamageNumberQueue[0].Tags);
 
+		UGSDamageMarkerWidgetComponent* DamageMarker = NewObject<UGSDamageMarkerWidgetComponent>(this, DamageMarkerClass);
+		DamageMarker->RegisterComponent();
+		DamageMarker->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageMarker->SetRelativeLocation(GetRootComponent()->GetComponentTransform().InverseTransformPosition(DamageNumberQueue[0].HitLocation));
+		DamageMarker->SetDamageMarker(DamageNumberQueue[0].Tags);
+
 		if (DamageNumberQueue.Num() < 1)
 		{
 			GetWorldTimerManager().ClearTimer(DamageNumberTimer);
 		}
 
 		DamageNumberQueue.RemoveAt(0);
+	}
+}
+
+void AGSCharacterBase::ShowKillMarker()
+{
+	if (KillMarkerQueue.Num() > 0 && IsValid(this))
+	{
+		UGSKillMarkerWidgetComponent* KillMarker = NewObject<UGSKillMarkerWidgetComponent>(this, KillMarkerClass);
+		KillMarker->RegisterComponent();
+		KillMarker->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		KillMarker->SetRelativeLocation(GetRootComponent()->GetComponentTransform().InverseTransformPosition(KillMarkerQueue[0].KilledLocation));
+		KillMarker->SetKillMarker(KillMarkerQueue[0].Tags);
+
+		if (KillMarkerQueue.Num() < 1)
+		{
+			GetWorldTimerManager().ClearTimer(KillMarkerTimer);
+		}
+
+		KillMarkerQueue.RemoveAt(0);
+	}
+}
+
+void AGSCharacterBase::ShowDamageIndicator()
+{
+	if (DamageIndicatorQueue.Num() > 0 && IsValid(this))
+	{
+		UGSHUDDamageIndicator* DamageIndicator = CreateWidget<UGSHUDDamageIndicator>(GetLocalViewingPlayerController(), DamageIndicatorClass);
+		DamageIndicator->HitLocation = DamageIndicatorQueue[0].SourceLocation;
+		DamageIndicator->AddToViewport();
+
+		if (DamageIndicatorQueue.Num() < 1)
+		{
+			GetWorldTimerManager().ClearTimer(DamageIndicatorTimer);
+		}
+
+		DamageIndicatorQueue.RemoveAt(0);
 	}
 }
 
@@ -358,4 +445,71 @@ void AGSCharacterBase::SetShield(float Shield)
 	{
 		AttributeSetBase->SetShield(Shield);
 	}
+}
+
+EGSHitReactDirection AGSCharacterBase::GetHitReactDirection(const FVector& ImpactPoint)
+{
+	const FVector& ActorLocation = GetActorLocation();
+	// PointPlaneDist is super cheap - 1 vector subtraction, 1 dot product.
+	float DistanceToFrontBackPlane = FVector::PointPlaneDist(ImpactPoint, ActorLocation, GetActorRightVector());
+	float DistanceToRightLeftPlane = FVector::PointPlaneDist(ImpactPoint, ActorLocation, GetActorForwardVector());
+
+
+	if (FMath::Abs(DistanceToFrontBackPlane) <= FMath::Abs(DistanceToRightLeftPlane))
+	{
+		// Determine if Front or Back
+
+		// Can see if it's left or right of Left/Right plane which would determine Front or Back
+		if (DistanceToRightLeftPlane >= 0)
+		{
+			return EGSHitReactDirection::Front;
+		}
+		else
+		{
+			return EGSHitReactDirection::Back;
+		}
+	}
+	else
+	{
+		// Determine if Right or Left
+
+		if (DistanceToFrontBackPlane >= 0)
+		{
+			return EGSHitReactDirection::Right;
+		}
+		else
+		{
+			return EGSHitReactDirection::Left;
+		}
+	}
+
+	return EGSHitReactDirection::Front;
+}
+
+void AGSCharacterBase::PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser)
+{
+	if (IsAlive())
+	{
+		if (HitDirection == HitDirectionLeftTag)
+		{
+			ShowHitReact.Broadcast(EGSHitReactDirection::Left);
+		}
+		else if (HitDirection == HitDirectionFrontTag)
+		{
+			ShowHitReact.Broadcast(EGSHitReactDirection::Front);
+		}
+		else if (HitDirection == HitDirectionRightTag)
+		{
+			ShowHitReact.Broadcast(EGSHitReactDirection::Right);
+		}
+		else if (HitDirection == HitDirectionBackTag)
+		{
+			ShowHitReact.Broadcast(EGSHitReactDirection::Back);
+		}
+	}
+}
+
+bool AGSCharacterBase::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser)
+{
+	return true;
 }

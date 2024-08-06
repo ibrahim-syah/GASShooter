@@ -53,9 +53,19 @@ public:
 
 
 	UFUNCTION(Client, Reliable, WithValidation)
-	void ShowDamageNumber(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags);
-	void ShowDamageNumber_Implementation(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags);
-	bool ShowDamageNumber_Validate(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags);
+	void ShowDamageNumber(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
+	void ShowDamageNumber_Implementation(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
+	bool ShowDamageNumber_Validate(float DamageAmount, AGSCharacterBase* TargetCharacter, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
+
+	UFUNCTION(Client, Reliable, WithValidation)
+	void ShowKillMarker(FGameplayTagContainer KillMarkerTag, FVector KillLocation);
+	void ShowKillMarker_Implementation(FGameplayTagContainer KillMarkerTag, FVector KillLocation);
+	bool ShowKillMarker_Validate(FGameplayTagContainer KillMarkerTag, FVector KillLocation);
+
+	UFUNCTION(Client, Reliable, WithValidation)
+	void ShowDamageIndicator(FVector SourcheLocation);
+	void ShowDamageIndicator_Implementation(FVector SourcheLocation);
+	bool ShowDamageIndicator_Validate(FVector SourcheLocation);
 
 	// Simple way to RPC to the client the countdown until they respawn from the GameMode. Will be latency amount of out sync with the Server.
 	UFUNCTION(Client, Reliable, WithValidation)

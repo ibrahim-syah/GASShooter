@@ -12,6 +12,10 @@ UGSAttributeSetBase::UGSAttributeSetBase()
 {
 	// Cache tags
 	HeadShotTag = FGameplayTag::RequestGameplayTag(FName("Effect.Damage.HeadShot"));
+	HitDirectionFrontTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Front"));
+	HitDirectionBackTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Back"));
+	HitDirectionRightTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Right"));
+	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
 }
 
 void UGSAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -136,6 +140,34 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 				// This is the log statement for damage received. Turned off for live games.
 				//UE_LOG(LogTemp, Log, TEXT("%s() %s Damage Received: %f"), *FString(__FUNCTION__), *GetOwningActor()->GetName(), LocalDamageDone);
 
+				// Play HitReact animation and sound with a multicast RPC.
+				const FHitResult* Hit = Data.EffectSpec.GetContext().GetHitResult();
+
+				if (Hit)
+				{
+					EGSHitReactDirection HitDirection = TargetCharacter->GetHitReactDirection(Hit->Location);
+					switch (HitDirection)
+					{
+					case EGSHitReactDirection::Left:
+						TargetCharacter->PlayHitReact(HitDirectionLeftTag, SourceCharacter);
+						break;
+					case EGSHitReactDirection::Front:
+						TargetCharacter->PlayHitReact(HitDirectionFrontTag, SourceCharacter);
+						break;
+					case EGSHitReactDirection::Right:
+						TargetCharacter->PlayHitReact(HitDirectionRightTag, SourceCharacter);
+						break;
+					case EGSHitReactDirection::Back:
+						TargetCharacter->PlayHitReact(HitDirectionBackTag, SourceCharacter);
+						break;
+					}
+				}
+				else
+				{
+					// No hit result. Default to front.
+					TargetCharacter->PlayHitReact(HitDirectionFrontTag, SourceCharacter);
+				}
+
 				// Show damage number for the Source player unless it was self damage
 				if (SourceActor != TargetActor)
 				{
@@ -148,9 +180,24 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 						{
 							DamageNumberTags.AddTagFast(HeadShotTag);
 						}
+						const FVector hitLocation = Hit ?
+							FVector(
+								Hit->Location.X,
+								Hit->Location.Y,
+								Hit->Location.Z
+							)
+							:
+							FVector(0.f);
 
-						PC->ShowDamageNumber(LocalDamageDone, TargetCharacter, DamageNumberTags);
+						PC->ShowDamageNumber(LocalDamageDone, TargetCharacter, DamageNumberTags, hitLocation);
 					}
+				}
+
+				AGSPlayerController* OwnerPC = Cast<AGSPlayerController>(TargetController);
+				if (OwnerPC)
+				{
+					FVector sourceLocation = SourceActor ? SourceActor->GetActorLocation() : FVector(0.f);
+					OwnerPC->ShowDamageIndicator(sourceLocation);
 				}
 
 				if (!TargetCharacter->IsAlive())
@@ -177,6 +224,19 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 						InfoGold.Attribute = UGSAttributeSetBase::GetGoldAttribute();
 
 						Source->ApplyGameplayEffectToSelf(GEBounty, 1.0f, Source->MakeEffectContext());
+
+						AGSPlayerController* PC = Cast<AGSPlayerController>(SourceController);
+						if (PC)
+						{
+							FGameplayTagContainer KillMarkerTags;
+
+							if (Data.EffectSpec.GetDynamicAssetTags().HasTag(HeadShotTag))
+							{
+								KillMarkerTags.AddTagFast(HeadShotTag);
+							}
+
+							PC->ShowKillMarker(KillMarkerTags, TargetCharacter->GetActorLocation());
+						}
 					}
 				}
 			}
