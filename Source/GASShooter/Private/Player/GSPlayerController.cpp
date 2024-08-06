@@ -176,7 +176,10 @@ bool AGSPlayerController::ShowKillMarker_Validate(FGameplayTagContainer KillMark
 
 void AGSPlayerController::ShowDamageIndicator_Implementation(FVector SourceLocation)
 {
-	GetPawn<AGSCharacterBase>()->AddDamageIndicator(SourceLocation);
+	if (AGSCharacterBase* HeroCharacter = GetPawn<AGSCharacterBase>())
+	{
+		HeroCharacter->AddDamageIndicator(SourceLocation);
+	}
 }
 
 bool AGSPlayerController::ShowDamageIndicator_Validate(FVector SourceLocation)
