@@ -145,7 +145,7 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 				if (Hit)
 				{
-					EGSHitReactDirection HitDirection = TargetCharacter->GetHitReactDirection(Data.EffectSpec.GetContext().GetHitResult()->Location);
+					EGSHitReactDirection HitDirection = TargetCharacter->GetHitReactDirection(Hit->Location);
 					switch (HitDirection)
 					{
 					case EGSHitReactDirection::Left:
