@@ -13,6 +13,7 @@
 #include "UI/GSDamageTextWidgetComponent.h"
 #include "UI/GSDamageMarkerWidgetComponent.h"
 #include "UI/GSKillMarkerWidgetComponent.h"
+#include "UI/GSHUDDamageIndicator.h"
 
 // Sets default values
 AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitializer) :
@@ -50,6 +51,12 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	if (!KillMarkerClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find KillMarkerClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
+	}
+
+	DamageIndicatorClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/DamageIndicator/UI_DamageIndicator.UI_DamageIndicator_C"));
+	if (!DamageIndicatorClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageIndicatorClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
 }
 
@@ -155,6 +162,16 @@ void AGSCharacterBase::AddKillMarker(FGameplayTagContainer KillMarkerTags, FVect
 	if (!GetWorldTimerManager().IsTimerActive(KillMarkerTimer))
 	{
 		GetWorldTimerManager().SetTimer(KillMarkerTimer, this, &AGSCharacterBase::ShowKillMarker, 0.1f, true, 0.0f);
+	}
+}
+
+void AGSCharacterBase::AddDamageIndicator(FVector SourceLocation)
+{
+	DamageIndicatorQueue.Add(FGSDamageIndicator(SourceLocation));
+
+	if (!GetWorldTimerManager().IsTimerActive(DamageIndicatorTimer))
+	{
+		GetWorldTimerManager().SetTimer(DamageIndicatorTimer, this, &AGSCharacterBase::ShowDamageIndicator, 0.1f, true, 0.0f);
 	}
 }
 
@@ -378,6 +395,23 @@ void AGSCharacterBase::ShowKillMarker()
 		}
 
 		KillMarkerQueue.RemoveAt(0);
+	}
+}
+
+void AGSCharacterBase::ShowDamageIndicator()
+{
+	if (DamageIndicatorQueue.Num() > 0 && IsValid(this))
+	{
+		UGSHUDDamageIndicator* DamageIndicator = CreateWidget<UGSHUDDamageIndicator>(GetLocalViewingPlayerController(), DamageIndicatorClass);
+		DamageIndicator->HitLocation = DamageIndicatorQueue[0].SourceLocation;
+		DamageIndicator->AddToViewport();
+
+		if (DamageIndicatorQueue.Num() < 1)
+		{
+			GetWorldTimerManager().ClearTimer(DamageIndicatorTimer);
+		}
+
+		DamageIndicatorQueue.RemoveAt(0);
 	}
 }
 

@@ -164,12 +164,22 @@ bool AGSPlayerController::ShowDamageNumber_Validate(float DamageAmount, AGSChara
 	return true;
 }
 
-void AGSPlayerController::ShowKillMarker_Implementation(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+void AGSPlayerController::ShowKillMarker_Implementation(FGameplayTagContainer KillMarkerTag, FVector KillLocation)
 {
 	GetPawn<AGSCharacterBase>()->AddKillMarker(KillMarkerTag, KillLocation);
 }
 
-bool AGSPlayerController::ShowKillMarker_Validate(AGSCharacterBase* TargetCharacter, FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+bool AGSPlayerController::ShowKillMarker_Validate(FGameplayTagContainer KillMarkerTag, FVector KillLocation)
+{
+	return true;
+}
+
+void AGSPlayerController::ShowDamageIndicator_Implementation(FVector SourceLocation)
+{
+	GetPawn<AGSCharacterBase>()->AddDamageIndicator(SourceLocation);
+}
+
+bool AGSPlayerController::ShowDamageIndicator_Validate(FVector SourceLocation)
 {
 	return true;
 }

@@ -50,6 +50,21 @@ struct GASSHOOTER_API FGSKillMarker
 	}
 };
 
+USTRUCT(BlueprintType)
+struct GASSHOOTER_API FGSDamageIndicator
+{
+	GENERATED_USTRUCT_BODY()
+
+	FVector SourceLocation;
+
+	FGSDamageIndicator() {}
+
+	FGSDamageIndicator(FVector InSourceLocation) : SourceLocation(InSourceLocation)
+	{
+		
+	}
+};
+
 /**
 * The base Character class for the game. Everything with an AbilitySystemComponent in this game will inherit from this class.
 * This class should not be instantiated and instead subclassed.
@@ -86,6 +101,7 @@ public:
 
 	virtual void AddDamageNumber(float Damage, FGameplayTagContainer DamageNumberTags, FVector HitLocation);
 	virtual void AddKillMarker(FGameplayTagContainer KillMarkerTags, FVector KillLocation);
+	virtual void AddDamageIndicator(FVector SourceLocation);
 
 	// I moved perspective up the base because even a minion pawn or tank pawn etc might have a perspective before and as you possess them.
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|GSHeroCharacter")
@@ -156,6 +172,9 @@ protected:
 
 	TArray<FGSKillMarker> KillMarkerQueue;
 	FTimerHandle KillMarkerTimer;
+
+	TArray<FGSDamageIndicator> DamageIndicatorQueue;
+	FTimerHandle DamageIndicatorTimer;
 	
 	// Reference to the ASC. It will live on the PlayerState or here if the character doesn't have a PlayerState.
 	UPROPERTY()
@@ -202,6 +221,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
 	TSubclassOf<class UGSKillMarkerWidgetComponent> KillMarkerClass;
 
+	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSHUDDamageIndicator> DamageIndicatorClass;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -218,6 +240,8 @@ protected:
 	virtual void ShowDamageNumber();
 
 	virtual void ShowKillMarker();
+
+	virtual void ShowDamageIndicator();
 
 
 	/**

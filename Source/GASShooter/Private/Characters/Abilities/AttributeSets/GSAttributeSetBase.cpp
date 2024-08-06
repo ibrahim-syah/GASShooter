@@ -180,7 +180,6 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 						{
 							DamageNumberTags.AddTagFast(HeadShotTag);
 						}
-
 						const FVector hitLocation = Hit ?
 							FVector(
 								Hit->Location.X,
@@ -192,6 +191,13 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 						PC->ShowDamageNumber(LocalDamageDone, TargetCharacter, DamageNumberTags, hitLocation);
 					}
+				}
+
+				AGSPlayerController* OwnerPC = Cast<AGSPlayerController>(TargetController);
+				if (OwnerPC)
+				{
+					FVector sourceLocation = SourceActor ? SourceActor->GetActorLocation() : FVector(0.f);
+					OwnerPC->ShowDamageIndicator(sourceLocation);
 				}
 
 				if (!TargetCharacter->IsAlive())
@@ -229,7 +235,7 @@ void UGSAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 								KillMarkerTags.AddTagFast(HeadShotTag);
 							}
 
-							PC->ShowKillMarker(TargetCharacter, KillMarkerTags, TargetCharacter->GetActorLocation());
+							PC->ShowKillMarker(KillMarkerTags, TargetCharacter->GetActorLocation());
 						}
 					}
 				}
