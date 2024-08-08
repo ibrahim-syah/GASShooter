@@ -56,5 +56,7 @@ enum class EGSAbilityInputID : uint8
 	// 11 Interact
 	Interact			UMETA(DisplayName = "Interact"),
 	// 12 Crouch
-	Crouch			    UMETA(DisplayName = "Crouch")
+	Crouch			    UMETA(DisplayName = "Crouch"),
+	// 13 Takedown
+	Takedown			UMETA(DisplayName = "Takedown")
 };

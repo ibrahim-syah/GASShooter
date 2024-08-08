@@ -33,6 +33,7 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
 	DeadTag = FGameplayTag::RequestGameplayTag("State.Dead");
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag("Effect.RemoveOnDeath");
+	BeingTakendownTag = FGameplayTag::RequestGameplayTag("State.BeingTakendown");
 
 	// Hardcoding to avoid having to manually set for every Blueprint child class
 	DamageNumberClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/DamageNumbers/WC_DamageText.WC_DamageText_C"));
@@ -512,4 +513,68 @@ void AGSCharacterBase::PlayHitReact_Implementation(FGameplayTag HitDirection, AA
 bool AGSCharacterBase::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	return true;
+}
+
+bool AGSCharacterBase::IsAvailableForTakedown_Implementation(UPrimitiveComponent* TakedownComponent) const
+{
+	// Pawn is available to be takendown if HP is less than 25% and is not already being takendown.
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f)
+		&& !AbilitySystemComponent->HasMatchingGameplayTag(BeingTakendownTag))
+	{
+		return true;
+	}
+
+	return IGSDamageable::IsAvailableForTakedown_Implementation(TakedownComponent);
+}
+
+float AGSCharacterBase::GetTakedownDuration_Implementation(UPrimitiveComponent* TakedownComponent) const
+{
+	return IGSDamageable::GetTakedownDuration_Implementation(TakedownComponent);
+}
+
+void AGSCharacterBase::PreTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.TakenDown")));
+	}
+}
+
+void AGSCharacterBase::PostTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(TakendownEffect->GetDefaultObject()), 1.0f, AbilitySystemComponent->MakeEffectContext());
+	}
+}
+
+void AGSCharacterBase::GetPreTakedownSyncType_Implementation(bool& bShouldSync, EAbilityTaskNetSyncType& Type, UPrimitiveComponent* TakedownComponent) const
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f))
+	{
+		bShouldSync = true;
+		Type = EAbilityTaskNetSyncType::OnlyClientWait;
+		return;
+	}
+
+	IGSDamageable::GetPreTakedownSyncType_Implementation(bShouldSync, Type, TakedownComponent);
+}
+
+void AGSCharacterBase::CancelTakedown_Implementation(UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		FGameplayTagContainer CancelTags(FGameplayTag::RequestGameplayTag("Ability.TakenDown"));
+		AbilitySystemComponent->CancelAbilities(&CancelTags);
+	}
+}
+
+FSimpleMulticastDelegate* AGSCharacterBase::GetTargetCancelTakedownDelegate(UPrimitiveComponent* TakedownComponent)
+{
+	return &TakedownCanceledDelegate;
 }
