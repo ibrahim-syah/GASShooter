@@ -27,13 +27,13 @@ UGSAT_WaitInteractableTarget* UGSAT_WaitInteractableTarget::WaitForInteractableT
 	MyObj->StartLocation1P = FGameplayAbilityTargetingLocationInfo();
 	MyObj->StartLocation1P.LocationType = EGameplayAbilityTargetingLocationType::SocketTransform;
 	MyObj->StartLocation1P.SourceComponent = Hero->GetFirstPersonMesh();
-	MyObj->StartLocation1P.SourceSocketName = "WeaponPoint";
+	MyObj->StartLocation1P.SourceSocketName = "HandInteractSource";
 	MyObj->StartLocation1P.SourceAbility = OwningAbility;
 
 	MyObj->StartLocation3P = FGameplayAbilityTargetingLocationInfo();
 	MyObj->StartLocation3P.LocationType = EGameplayAbilityTargetingLocationType::SocketTransform;
 	MyObj->StartLocation3P.SourceComponent = Hero->GetThirdPersonMesh();
-	MyObj->StartLocation3P.SourceSocketName = "Head";
+	MyObj->StartLocation3P.SourceSocketName = "HeadInteractSource";
 	MyObj->StartLocation3P.SourceAbility = OwningAbility;
 
 	return MyObj;

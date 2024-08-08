@@ -622,4 +622,10 @@ protected:
 	float DipAlpha;
 
 	void LandingDip();
+
+
+	/// flinch
+	virtual void AddDamageIndicator(FVector SourceLocation) override;
+	FTimerHandle DamageFlinchTimer;
+	virtual void ClearDamageFlinchTimer();
 };
