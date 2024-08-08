@@ -627,5 +627,5 @@ protected:
 	/// flinch
 	virtual void AddDamageIndicator(FVector SourceLocation) override;
 	FTimerHandle DamageFlinchTimer;
-	virtual void FlinchFPViewmodel();
+	virtual void ClearDamageFlinchTimer();
 };

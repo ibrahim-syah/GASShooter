@@ -1848,11 +1848,13 @@ void AGSHeroCharacter::AddDamageIndicator(FVector SourceLocation)
 
 	if (!GetWorldTimerManager().IsTimerActive(DamageFlinchTimer))
 	{
-		GetWorldTimerManager().SetTimer(DamageFlinchTimer, this, &ThisClass::FlinchFPViewmodel, 2.f, false, 0.f);
+		Dip(4.f, 0.5f);
+		GetWorldTimerManager().SetTimer(DamageFlinchTimer, this, &ThisClass::ClearDamageFlinchTimer, 0.3f, false);
 	}
 }
 
-void AGSHeroCharacter::FlinchFPViewmodel()
+void AGSHeroCharacter::ClearDamageFlinchTimer()
 {
-	Dip(4.f, 0.5f);
+	GetWorldTimerManager().ClearTimer(DamageFlinchTimer);
+	DamageFlinchTimer.Invalidate();
 }
