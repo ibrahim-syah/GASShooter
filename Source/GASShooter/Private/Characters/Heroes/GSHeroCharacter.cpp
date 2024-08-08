@@ -1840,3 +1840,19 @@ void AGSHeroCharacter::LandingDip()
 		UGameplayStatics::PlaySoundAtLocation(this, LandCue, GetActorLocation(), clampedVelocity);
 	}*/
 }
+
+/// flinch for the fp viewmodel when damaged, unlike the 3p mesh hit react, this doesn't need to be multicasted since only the player will see it in fp
+void AGSHeroCharacter::AddDamageIndicator(FVector SourceLocation)
+{
+	Super::AddDamageIndicator(SourceLocation);
+
+	if (!GetWorldTimerManager().IsTimerActive(DamageFlinchTimer))
+	{
+		GetWorldTimerManager().SetTimer(DamageFlinchTimer, this, &ThisClass::FlinchFPViewmodel, 2.f, false, 0.f);
+	}
+}
+
+void AGSHeroCharacter::FlinchFPViewmodel()
+{
+	Dip(4.f, 0.5f);
+}
