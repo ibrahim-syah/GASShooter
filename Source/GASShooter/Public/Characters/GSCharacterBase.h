@@ -180,7 +180,7 @@ public:
 	* takedown:
 	* activate takedown GA (plays animation)
 	*/
-	virtual void PreTakedown_Implementation(AActor* Takedowner, UPrimitiveComponent* TakedownComponent) override;
+	//virtual void PreTakedown_Implementation(AActor* Takedowner, UPrimitiveComponent* TakedownComponent) override;
 
 	/**
 	* takedown:

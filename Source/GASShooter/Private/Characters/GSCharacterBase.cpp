@@ -533,14 +533,14 @@ float AGSCharacterBase::GetTakedownDuration_Implementation(UPrimitiveComponent* 
 	return IGSDamageable::GetTakedownDuration_Implementation(TakedownComponent);
 }
 
-void AGSCharacterBase::PreTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
-{
-	const float HPRatio = GetHealth() / GetMaxHealth();
-	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
-	{
-		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.TakenDown")));
-	}
-}
+//void AGSCharacterBase::PreTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
+//{
+//	const float HPRatio = GetHealth() / GetMaxHealth();
+//	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+//	{
+//		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.TakenDown")));
+//	}
+//}
 
 void AGSCharacterBase::PostTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
 {
