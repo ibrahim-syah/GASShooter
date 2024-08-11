@@ -19,7 +19,8 @@ public class GASShooter : ModuleRules
             "Niagara",
 			"MetasoundEngine",
 			"PhysicsCore",
-            "DeveloperSettings"
+            "DeveloperSettings",
+            "MotionWarping"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
