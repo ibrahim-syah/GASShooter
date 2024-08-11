@@ -180,7 +180,7 @@ public:
 	* takedown:
 	* activate takedown GA (plays animation)
 	*/
-	//virtual void PreTakedown_Implementation(AActor* Takedowner, UPrimitiveComponent* TakedownComponent) override;
+	virtual void PreTakedown_Implementation(AActor* Takedowner, UPrimitiveComponent* TakedownComponent) override;
 
 	/**
 	* takedown:
@@ -237,6 +237,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
 	UAnimMontage* DeathMontage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
+	UAnimMontage* StunMontage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Takedown")
+	bool bCanEverBeTakenDown;
 
 	//UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
 	//class USoundBase* DeathSound;

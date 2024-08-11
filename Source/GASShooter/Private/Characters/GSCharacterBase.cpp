@@ -519,8 +519,10 @@ bool AGSCharacterBase::IsAvailableForTakedown_Implementation(UPrimitiveComponent
 {
 	// Pawn is available to be takendown if HP is less than 25% and is not already being takendown.
 	const float HPRatio = GetHealth() / GetMaxHealth();
-	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f)
-		&& !AbilitySystemComponent->HasMatchingGameplayTag(BeingTakendownTag))
+	if (IsValid(AbilitySystemComponent) &&
+		bCanEverBeTakenDown &&
+		(HPRatio <= 0.25f) &&
+		!AbilitySystemComponent->HasMatchingGameplayTag(BeingTakendownTag))
 	{
 		return true;
 	}
@@ -533,21 +535,27 @@ float AGSCharacterBase::GetTakedownDuration_Implementation(UPrimitiveComponent* 
 	return IGSDamageable::GetTakedownDuration_Implementation(TakedownComponent);
 }
 
-//void AGSCharacterBase::PreTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
-//{
-//	const float HPRatio = GetHealth() / GetMaxHealth();
-//	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
-//	{
-//		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.TakenDown")));
-//	}
-//}
+void AGSCharacterBase::PreTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.TakenDown")));
+	}
+}
 
 void AGSCharacterBase::PostTakedown_Implementation(AActor* InteractingActor, UPrimitiveComponent* TakedownComponent)
 {
 	const float HPRatio = GetHealth() / GetMaxHealth();
 	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
 	{
-		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(TakendownEffect->GetDefaultObject()), 1.0f, AbilitySystemComponent->MakeEffectContext());
+		FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(TakendownEffect, 1.f, AbilitySystemComponent->MakeEffectContext());
+		if (EffectSpecHandle.IsValid())
+		{
+			FGameplayEffectSpec* EffectSpec = EffectSpecHandle.Data.Get();
+			EffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"), GetMaxHealth());
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec);
+		}
 	}
 }
 
