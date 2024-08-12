@@ -8,11 +8,14 @@
 #include "Characters/Abilities/GSGameplayAbility.h"
 #include "Characters/GSCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "MotionWarpingComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Sound/SoundCue.h"
 #include "UI/GSDamageTextWidgetComponent.h"
 #include "UI/GSDamageMarkerWidgetComponent.h"
 #include "UI/GSKillMarkerWidgetComponent.h"
+#include "UI/GSFloatingStatusBarWidget.h"
 #include "UI/GSHUDDamageIndicator.h"
 
 // Sets default values
@@ -33,6 +36,8 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
 	DeadTag = FGameplayTag::RequestGameplayTag("State.Dead");
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag("Effect.RemoveOnDeath");
+	BeingTakendownTag = FGameplayTag::RequestGameplayTag("State.BeingTakendown");
+	KnockedDownTag = FGameplayTag::RequestGameplayTag("State.KnockedDown");
 
 	// Hardcoding to avoid having to manually set for every Blueprint child class
 	DamageNumberClass = StaticLoadClass(UObject::StaticClass(), nullptr, TEXT("/Game/GASShooter/UI/DamageNumbers/WC_DamageText.WC_DamageText_C"));
@@ -58,6 +63,8 @@ AGSCharacterBase::AGSCharacterBase(const class FObjectInitializer& ObjectInitial
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s() Failed to find DamageIndicatorClass. If it was moved, please update the reference location in C++."), *FString(__FUNCTION__));
 	}
+
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(FName("MotionWarpingComponent"));
 }
 
 UAbilitySystemComponent* AGSCharacterBase::GetAbilitySystemComponent() const
@@ -512,4 +519,112 @@ void AGSCharacterBase::PlayHitReact_Implementation(FGameplayTag HitDirection, AA
 bool AGSCharacterBase::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	return true;
+}
+
+bool AGSCharacterBase::IsAvailableForTakedown_Implementation(UPrimitiveComponent* TakedownComponent) const
+{
+	// Pawn is available to be takendown if HP is less than 25% and is not already being takendown.
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (
+		IsValid(AbilitySystemComponent) &&
+		bCanEverBeTakenDown &&
+		(HPRatio <= 0.25f) &&
+		!AbilitySystemComponent->HasMatchingGameplayTag(BeingTakendownTag) &&
+		!AbilitySystemComponent->HasMatchingGameplayTag(KnockedDownTag)
+		)
+	{
+		return true;
+	}
+
+	return IGSDamageable::IsAvailableForTakedown_Implementation(TakedownComponent);
+}
+
+float AGSCharacterBase::GetTakedownDuration_Implementation(UPrimitiveComponent* TakedownComponent) const
+{
+	return IGSDamageable::GetTakedownDuration_Implementation(TakedownComponent);
+}
+
+void AGSCharacterBase::PreTakedown_Implementation(AActor* TakedowningActor, UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		//AbilitySystemComponent->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag("Ability.TakenDown")));
+
+		FGameplayEventData EventData;
+		EventData.Instigator = TakedowningActor;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, FGameplayTag::RequestGameplayTag("Ability.TakenDown"), EventData);
+	}
+}
+
+void AGSCharacterBase::PostTakedown_Implementation(AActor* TakedowningActor, UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(TakendownEffect, 1.f, AbilitySystemComponent->MakeEffectContext());
+		if (EffectSpecHandle.IsValid())
+		{
+			FGameplayEffectSpec* EffectSpec = EffectSpecHandle.Data.Get();
+			EffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.Damage"), GetMaxHealth());
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec);
+		}
+	}
+}
+
+void AGSCharacterBase::GetPreTakedownSyncType_Implementation(bool& bShouldSync, EAbilityTaskNetSyncType& Type, UPrimitiveComponent* TakedownComponent) const
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f))
+	{
+		bShouldSync = true;
+		Type = EAbilityTaskNetSyncType::OnlyClientWait;
+		return;
+	}
+
+	IGSDamageable::GetPreTakedownSyncType_Implementation(bShouldSync, Type, TakedownComponent);
+}
+
+void AGSCharacterBase::CancelTakedown_Implementation(UPrimitiveComponent* TakedownComponent)
+{
+	const float HPRatio = GetHealth() / GetMaxHealth();
+	if (IsValid(AbilitySystemComponent) && (HPRatio <= 0.25f) && HasAuthority())
+	{
+		FGameplayTagContainer CancelTags(FGameplayTag::RequestGameplayTag("Ability.TakenDown"));
+		AbilitySystemComponent->CancelAbilities(&CancelTags);
+	}
+}
+
+FSimpleMulticastDelegate* AGSCharacterBase::GetTargetCancelTakedownDelegate(UPrimitiveComponent* TakedownComponent)
+{
+	return &TakedownCanceledDelegate;
+}
+
+
+
+
+bool AGSCharacterBase::IsStatusBarAvailable_Implementation() const
+{
+	if (UIFloatingStatusBar)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void AGSCharacterBase::FadeInStatusBar_Implementation() const
+{
+	if (UIFloatingStatusBar)
+	{
+		UIFloatingStatusBar->PlayFadeIn();
+	}
+}
+
+void AGSCharacterBase::FadeOutStatusBar_Implementation() const
+{
+	if (UIFloatingStatusBar)
+	{
+		UIFloatingStatusBar->PlayFadeOut();
+	}
 }

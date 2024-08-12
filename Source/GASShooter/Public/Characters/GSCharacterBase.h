@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Characters/Abilities/GSDamageable.h"
 #include "GameplayTagContainer.h"
 #include "GASShooter/GASShooter.h"
 #include "TimerManager.h"
@@ -70,7 +71,7 @@ struct GASSHOOTER_API FGSDamageIndicator
 * This class should not be instantiated and instead subclassed.
 */
 UCLASS()
-class GASSHOOTER_API AGSCharacterBase : public ACharacter, public IAbilitySystemInterface
+class GASSHOOTER_API AGSCharacterBase : public ACharacter, public IAbilitySystemInterface, public IGSDamageable
 {
 	GENERATED_BODY()
 
@@ -159,6 +160,54 @@ public:
 	virtual void PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser);
 	virtual bool PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser);
 
+	/**
+	* Damageable interface
+	*/
+
+	/**
+	* This Character can be taken down by other heroes when:
+	* HP is less than 25% - to knock them down
+	*/
+	virtual bool IsAvailableForTakedown_Implementation(UPrimitiveComponent* TakedownComponent) const override;
+
+	/**
+	* How long to takedown with this player:
+	* should be instant
+	*/
+	virtual float GetTakedownDuration_Implementation(UPrimitiveComponent* TakedownComponent) const override;
+
+	/**
+	* takedown:
+	* activate takedown GA (plays animation)
+	*/
+	virtual void PreTakedown_Implementation(AActor* Takedowner, UPrimitiveComponent* TakedownComponent) override;
+
+	/**
+	* takedown:
+	* apply takedown GE
+	*/
+	virtual void PostTakedown_Implementation(AActor* Takedowner, UPrimitiveComponent* TakedownComponent) override;
+
+	virtual void GetPreTakedownSyncType_Implementation(bool& bShouldSync, EAbilityTaskNetSyncType& Type, UPrimitiveComponent* TakedownComponent) const override;
+
+	/**
+	* Cancel takedown:
+	* takedown - cancel takedown ability
+	*/
+	virtual void CancelTakedown_Implementation(UPrimitiveComponent* TakedownComponent) override;
+
+	/**
+	* Get the delegate for this Actor canceling takedown:
+	* cancel being taken down if killed
+	*/
+	FSimpleMulticastDelegate* GetTargetCancelTakedownDelegate(UPrimitiveComponent* TakedownComponent) override;
+	FSimpleMulticastDelegate TakedownCanceledDelegate;
+
+	virtual bool IsStatusBarAvailable_Implementation() const override;
+	virtual void FadeInStatusBar_Implementation() const override;
+	virtual void FadeOutStatusBar_Implementation() const override;
+
+
 protected:
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;
@@ -166,6 +215,8 @@ protected:
 	FGameplayTag HitDirectionLeftTag;
 	FGameplayTag DeadTag;
 	FGameplayTag EffectRemoveOnDeathTag;
+	FGameplayTag BeingTakendownTag;
+	FGameplayTag KnockedDownTag;
 
 	TArray<FGSDamageNumber> DamageNumberQueue;
 	FTimerHandle DamageNumberTimer;
@@ -180,6 +231,9 @@ protected:
 	UPROPERTY()
 	class UGSAbilitySystemComponent* AbilitySystemComponent;
 
+	UPROPERTY(BlueprintReadOnly)
+	class UMotionWarpingComponent* MotionWarpingComponent;
+
 	// Reference to the AttributeSetBase. It will live on the PlayerState or here if the character doesn't have a PlayerState.
 	UPROPERTY()
 	class UGSAttributeSetBase* AttributeSetBase;
@@ -192,6 +246,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
 	UAnimMontage* DeathMontage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Animation")
+	UAnimMontage* StunMontage;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Takedown")
+	bool bCanEverBeTakenDown;
 
 	//UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Audio")
 	//class USoundBase* DeathSound;
@@ -211,6 +271,18 @@ protected:
 	// These effects are only applied one time on startup
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Abilities")
 	TArray<TSubclassOf<class UGameplayEffect>> StartupEffects;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Abilities")
+	TSubclassOf<UGameplayEffect> TakendownEffect;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSFloatingStatusBarWidget> UIFloatingStatusBarClass;
+
+	UPROPERTY()
+	class UGSFloatingStatusBarWidget* UIFloatingStatusBar;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|UI")
+	class UWidgetComponent* UIFloatingStatusBarComponent;
 
 	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
 	TSubclassOf<class UGSDamageTextWidgetComponent> DamageNumberClass;

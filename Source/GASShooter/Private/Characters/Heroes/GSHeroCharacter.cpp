@@ -147,7 +147,6 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	AIControllerClass = AGSHeroAIController::StaticClass();
 
 	// Cache tags
-	KnockedDownTag = FGameplayTag::RequestGameplayTag("State.KnockedDown");
 	InteractingTag = FGameplayTag::RequestGameplayTag("State.Interacting");
 
 
@@ -295,6 +294,12 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Interact, false);
+
+		EnhancedInputComponent->BindAction(TakedownAction, ETriggerEvent::Started, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Takedown, true);
+
+		EnhancedInputComponent->BindAction(TakedownAction, ETriggerEvent::Completed, this,
+			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Takedown, false);
 
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Started, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::Confirm, true);
@@ -884,6 +889,8 @@ void AGSHeroCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	// Cancel being revived if killed
 	//InteractionCanceledDelegate.Broadcast();
 	Execute_InteractableCancelInteraction(this, GetThirdPersonMesh());
+
+	Execute_TakedownableCancelTakedown(this, GetThirdPersonMesh());
 
 	// Clear CurrentWeaponTag on the ASC. This happens naturally in UnEquipCurrentWeapon() but
 	// that is only called on the server from hero death (the OnRep_CurrentWeapon() would have

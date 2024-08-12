@@ -171,6 +171,9 @@ public:
 	class UInputAction* InteractAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* TakedownAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* TogglePerspectiveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -372,15 +375,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|Camera")
 	class UCameraComponent* FirstPersonCamera;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GASShooter|UI")
-	TSubclassOf<class UGSFloatingStatusBarWidget> UIFloatingStatusBarClass;
-
-	UPROPERTY()
-	class UGSFloatingStatusBarWidget* UIFloatingStatusBar;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|UI")
-	class UWidgetComponent* UIFloatingStatusBarComponent;
-
 	UPROPERTY(ReplicatedUsing = OnRep_Inventory)
 	FGSHeroInventory Inventory;
 
@@ -409,7 +403,6 @@ protected:
 	FGameplayTag WeaponChangingDelayReplicationTag;
 	FGameplayTag WeaponAmmoTypeNoneTag;
 	FGameplayTag WeaponAbilityTag;
-	FGameplayTag KnockedDownTag;
 	FGameplayTag InteractingTag;
 
 	// Attribute changed delegate handles
