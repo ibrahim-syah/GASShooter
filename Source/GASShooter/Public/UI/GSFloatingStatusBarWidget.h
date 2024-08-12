@@ -29,4 +29,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetCharacterName(const FText& NewName);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void PlayFadeIn();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void PlayFadeOut();
 };

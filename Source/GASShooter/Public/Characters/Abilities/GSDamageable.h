@@ -154,6 +154,25 @@ public:
 	void TakedownableCancelTakedown(UPrimitiveComponent* TakedownComponent);
 	void TakedownableCancelTakedown_Implementation(UPrimitiveComponent* TakedownComponent);
 
+
+
+
+	/**
+	* Does this pawn have a status bar?
+	*
+	*/
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StatusBar")
+	bool IsStatusBarAvailable() const;
+	virtual bool IsStatusBarAvailable_Implementation() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StatusBar")
+	void FadeInStatusBar() const;
+	virtual void FadeInStatusBar_Implementation() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "StatusBar")
+	void FadeOutStatusBar() const;
+	virtual void FadeOutStatusBar_Implementation() const;
+
 protected:
 	TMap<UPrimitiveComponent*, TArray<AActor*>> Takedowners;
 };

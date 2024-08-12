@@ -82,3 +82,18 @@ void IGSDamageable::TakedownableCancelTakedown_Implementation(UPrimitiveComponen
 		TakedowningActors.Empty();
 	}
 }
+
+bool IGSDamageable::IsStatusBarAvailable_Implementation() const
+{
+	return false;
+}
+
+void IGSDamageable::FadeInStatusBar_Implementation() const
+{
+	return;
+}
+
+void IGSDamageable::FadeOutStatusBar_Implementation() const
+{
+	return;
+}

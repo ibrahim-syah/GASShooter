@@ -15,6 +15,7 @@
 #include "UI/GSDamageTextWidgetComponent.h"
 #include "UI/GSDamageMarkerWidgetComponent.h"
 #include "UI/GSKillMarkerWidgetComponent.h"
+#include "UI/GSFloatingStatusBarWidget.h"
 #include "UI/GSHUDDamageIndicator.h"
 
 // Sets default values
@@ -597,4 +598,33 @@ void AGSCharacterBase::CancelTakedown_Implementation(UPrimitiveComponent* Takedo
 FSimpleMulticastDelegate* AGSCharacterBase::GetTargetCancelTakedownDelegate(UPrimitiveComponent* TakedownComponent)
 {
 	return &TakedownCanceledDelegate;
+}
+
+
+
+
+bool AGSCharacterBase::IsStatusBarAvailable_Implementation() const
+{
+	if (UIFloatingStatusBar)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void AGSCharacterBase::FadeInStatusBar_Implementation() const
+{
+	if (UIFloatingStatusBar)
+	{
+		UIFloatingStatusBar->PlayFadeIn();
+	}
+}
+
+void AGSCharacterBase::FadeOutStatusBar_Implementation() const
+{
+	if (UIFloatingStatusBar)
+	{
+		UIFloatingStatusBar->PlayFadeOut();
+	}
 }

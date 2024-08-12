@@ -203,6 +203,11 @@ public:
 	FSimpleMulticastDelegate* GetTargetCancelTakedownDelegate(UPrimitiveComponent* TakedownComponent) override;
 	FSimpleMulticastDelegate TakedownCanceledDelegate;
 
+	virtual bool IsStatusBarAvailable_Implementation() const override;
+	virtual void FadeInStatusBar_Implementation() const override;
+	virtual void FadeOutStatusBar_Implementation() const override;
+
+
 protected:
 	FGameplayTag HitDirectionFrontTag;
 	FGameplayTag HitDirectionBackTag;
@@ -269,6 +274,15 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|Abilities")
 	TSubclassOf<UGameplayEffect> TakendownEffect;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "GASShooter|UI")
+	TSubclassOf<class UGSFloatingStatusBarWidget> UIFloatingStatusBarClass;
+
+	UPROPERTY()
+	class UGSFloatingStatusBarWidget* UIFloatingStatusBar;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "GASShooter|UI")
+	class UWidgetComponent* UIFloatingStatusBarComponent;
 
 	UPROPERTY(EditAnywhere, Category = "GASShooter|UI")
 	TSubclassOf<class UGSDamageTextWidgetComponent> DamageNumberClass;
