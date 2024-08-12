@@ -147,7 +147,6 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	AIControllerClass = AGSHeroAIController::StaticClass();
 
 	// Cache tags
-	KnockedDownTag = FGameplayTag::RequestGameplayTag("State.KnockedDown");
 	InteractingTag = FGameplayTag::RequestGameplayTag("State.Interacting");
 
 

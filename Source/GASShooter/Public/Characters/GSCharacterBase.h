@@ -211,6 +211,7 @@ protected:
 	FGameplayTag DeadTag;
 	FGameplayTag EffectRemoveOnDeathTag;
 	FGameplayTag BeingTakendownTag;
+	FGameplayTag KnockedDownTag;
 
 	TArray<FGSDamageNumber> DamageNumberQueue;
 	FTimerHandle DamageNumberTimer;
@@ -224,6 +225,9 @@ protected:
 	// Reference to the ASC. It will live on the PlayerState or here if the character doesn't have a PlayerState.
 	UPROPERTY()
 	class UGSAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY(BlueprintReadOnly)
+	class UMotionWarpingComponent* MotionWarpingComponent;
 
 	// Reference to the AttributeSetBase. It will live on the PlayerState or here if the character doesn't have a PlayerState.
 	UPROPERTY()

@@ -412,7 +412,6 @@ protected:
 	FGameplayTag WeaponChangingDelayReplicationTag;
 	FGameplayTag WeaponAmmoTypeNoneTag;
 	FGameplayTag WeaponAbilityTag;
-	FGameplayTag KnockedDownTag;
 	FGameplayTag InteractingTag;
 
 	// Attribute changed delegate handles
