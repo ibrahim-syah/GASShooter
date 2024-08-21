@@ -46,6 +46,7 @@ AGSWeapon::AGSWeapon()
 	WeaponMesh1P->SetVisibility(false, true);
 	WeaponMesh1P->SetupAttachment(CollisionComp);
 	WeaponMesh1P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	WeaponMesh1P->BoundsScale = 2.f;
 
 	WeaponMesh3PickupRelativeLocation = FVector(0.0f, -25.0f, 0.0f);
 
@@ -56,6 +57,7 @@ AGSWeapon::AGSWeapon()
 	WeaponMesh3P->CastShadow = true;
 	WeaponMesh3P->SetVisibility(true, true);
 	WeaponMesh3P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	WeaponMesh3P->BoundsScale = 2.f;
 
 	WeaponPrimaryInstantAbilityTag = FGameplayTag::RequestGameplayTag("Ability.Weapon.Primary.Instant");
 	WeaponSecondaryInstantAbilityTag = FGameplayTag::RequestGameplayTag("Ability.Weapon.Secondary.Instant");

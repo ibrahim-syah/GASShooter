@@ -46,7 +46,7 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	Inventory = FGSHeroInventory();
 	ReviveDuration = 4.0f;
 
-	GetCapsuleComponent()->InitCapsuleSize(35.f, 96.f);
+	GetCapsuleComponent()->InitCapsuleSize(35.f, 96.f);	
 
 	GetCharacterMovement()->GravityScale = 1.5f;
 	GetCharacterMovement()->MaxAcceleration = 3072.f;
