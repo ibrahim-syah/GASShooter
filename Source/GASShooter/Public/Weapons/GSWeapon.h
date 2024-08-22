@@ -227,6 +227,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FVector WeaponMesh3PickupRelativeLocation;
 
+	// Relative Location Offset of the offset root
+	// This is only necessary because right now, I'm using first person animations from all over around the internet/marketplace
+	// so they are not consistent in how the character hierarchy and viewport location are setup. This offset will fixes that for each weapon
+	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
+	FVector OffsetRootLocationOffset;
+
 	// Relative Location of weapon 1P Mesh when equipped
 	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FVector WeaponMesh1PEquippedRelativeLocation;

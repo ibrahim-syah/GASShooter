@@ -60,7 +60,7 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	ThirdPersonCameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("CameraBoom"));
 	ThirdPersonCameraBoom->SetupAttachment(RootComponent);
 	ThirdPersonCameraBoom->bUsePawnControlRotation = true;
-	ThirdPersonCameraBoom->SetRelativeLocation(FVector(0, 50, 68.492264));
+	ThirdPersonCameraBoom->SetRelativeLocation(FVector(0, 50.f, 60.f));
 
 	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(FName("FollowCamera"));
 	ThirdPersonCamera->SetupAttachment(ThirdPersonCameraBoom);
@@ -78,11 +78,11 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	FirstPersonLegMesh->CastShadow = false;
 	FirstPersonLegMesh->SetVisibility(false, true);
 	FirstPersonLegMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	FirstPersonLegMesh->SetRelativeLocation(FVector(0.f, 0.f, -79.5f));
+	FirstPersonLegMesh->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 
 	Mesh_Root = CreateDefaultSubobject<USpringArmComponent>(TEXT("Mesh_Root"));
 	Mesh_Root->SetupAttachment(FP_Root);
-	Mesh_Root->SetRelativeLocation(FVector(0.f, 0.f, 70.f));
+	Mesh_Root->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 	Mesh_Root->TargetArmLength = 0;
 	Mesh_Root->bDoCollisionTest = false;
 	Mesh_Root->bUsePawnControlRotation = true;
@@ -90,9 +90,10 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	Mesh_Root->bInheritYaw = true;
 	Mesh_Root->bInheritRoll = false;
 
+	Offset_Root_LocationOffsetBase = FVector(0.f, 0.f, -60.f);
 	Offset_Root = CreateDefaultSubobject<USceneComponent>(TEXT("Offset_Root"));
 	Offset_Root->SetupAttachment(Mesh_Root);
-	Offset_Root->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
+	Offset_Root->SetRelativeLocation(Offset_Root_LocationOffsetBase);
 
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName("FirstPersonMesh"));
 	FirstPersonMesh->SetupAttachment(Offset_Root);
@@ -103,11 +104,11 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	FirstPersonMesh->CastShadow = false;
 	FirstPersonMesh->SetVisibility(false, true);
 	FirstPersonMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	FirstPersonMesh->SetRelativeLocation(FVector(0.f, 0.f, -79.5f));
+	FirstPersonMesh->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 
 	Cam_Root = CreateDefaultSubobject<USpringArmComponent>(TEXT("Cam_Root"));
 	Cam_Root->SetupAttachment(FP_Root);
-	Cam_Root->SetRelativeLocation(FVector(0.f, 0.f, 70.f));
+	Cam_Root->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 	Cam_Root->TargetArmLength = 0;
 	Cam_Root->bDoCollisionTest = false;
 	Cam_Root->bUsePawnControlRotation = true;
@@ -117,12 +118,13 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 
 	Cam_Skel = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Cam_Skel"));
 	Cam_Skel->SetupAttachment(Cam_Root);
-	Cam_Skel->SetRelativeLocation(FVector(0.f, 0.f, -70.f));
+	Cam_Skel->SetRelativeLocation(FVector(0.f, 0.f, -60.f));
 
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(FName("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(Cam_Skel);
 	FirstPersonCamera->bUsePawnControlRotation = true;
 	FirstPersonCamera->PostProcessSettings.bOverride_VignetteIntensity = true;
+	FirstPersonCamera->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -130,6 +132,8 @@ AGSHeroCharacter::AGSHeroCharacter(const class FObjectInitializer& ObjectInitial
 	GetMesh()->SetCollisionResponseToChannel(COLLISION_INTERACTABLE, ECollisionResponse::ECR_Overlap);
 	GetMesh()->bCastHiddenShadow = true;
 	GetMesh()->bReceivesDecals = false;
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
 
 	UIFloatingStatusBarComponent = CreateDefaultSubobject<UWidgetComponent>(FName("UIFloatingStatusBarComponent"));
 	UIFloatingStatusBarComponent->SetupAttachment(RootComponent);
@@ -1526,6 +1530,11 @@ float AGSHeroCharacter::GetCrouchAlpha() const
 float AGSHeroCharacter::GetDipAlpha() const
 {
 	return DipAlpha;
+}
+
+void AGSHeroCharacter::SetOffsetRootLocationOffset(FVector LocationOffset)
+{
+	Offset_Root->SetRelativeLocation(Offset_Root_LocationOffsetBase + LocationOffset);
 }
 
 ////////////////////////////////////////////////////////////////////////////////// FP Procedural Animation

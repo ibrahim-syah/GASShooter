@@ -301,6 +301,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetDipAlpha() const;
 
+	void SetOffsetRootLocationOffset(FVector NewLocationOffset);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	FVector StartingThirdPersonMeshLocation;
@@ -356,6 +358,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USceneComponent* Offset_Root;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	FVector Offset_Root_LocationOffsetBase;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USkeletalMeshComponent* FirstPersonMesh;

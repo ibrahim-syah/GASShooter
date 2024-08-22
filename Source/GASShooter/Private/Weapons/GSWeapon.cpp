@@ -157,6 +157,8 @@ void AGSWeapon::Equip()
 		WeaponMesh1P->SetRelativeLocation(WeaponMesh1PEquippedRelativeLocation);
 		WeaponMesh1P->SetRelativeRotation(WeaponMesh1PEquippedRelativeRotation);
 
+		OwningCharacter->SetOffsetRootLocationOffset(OffsetRootLocationOffset);
+
 		if (OwningCharacter->IsInFirstPersonPerspective())
 		{
 			WeaponMesh1P->SetVisibility(true, true);
@@ -208,6 +210,7 @@ void AGSWeapon::UnEquip()
 
 	WeaponMesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	WeaponMesh1P->SetVisibility(false, true);
+	OwningCharacter->SetOffsetRootLocationOffset(FVector(0.f));
 
 	WeaponMesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	WeaponMesh3P->CastShadow = false;
