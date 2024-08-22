@@ -613,7 +613,7 @@ protected:
 	void CoyoteTimePassed();
 	float CoyoteTime{ 0.35f };
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	void Dip(float Speed = 1.f, float Strength = 1.f);
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
