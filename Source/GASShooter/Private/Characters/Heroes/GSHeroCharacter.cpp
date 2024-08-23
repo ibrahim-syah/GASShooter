@@ -960,7 +960,7 @@ void AGSHeroCharacter::SetPerspective(bool InIsFirstPersonPerspective)
 
 			GetMesh()->SetVisibility(false, true);
 			FirstPersonMesh->SetVisibility(true, true);
-			FirstPersonLegMesh->SetVisibility(true, true);
+			FirstPersonLegMesh->SetVisibility(true, false); // footstep effect are attached to the fp leg, so we don't want to turn them invisible as well
 
 			// Move third person mesh back so that the shadow doesn't look disconnected
 			GetMesh()->SetRelativeLocation(StartingThirdPersonMeshLocation + FVector(InvisibleBodyMeshOffsetLength, 0.0f, 0.0f));
@@ -973,7 +973,7 @@ void AGSHeroCharacter::SetPerspective(bool InIsFirstPersonPerspective)
 			PC->SetViewTarget(this);
 
 			FirstPersonMesh->SetVisibility(false, true);
-			FirstPersonLegMesh->SetVisibility(false, true);
+			FirstPersonLegMesh->SetVisibility(false, false); // footstep effect are attached to the fp leg, so we don't want to turn them invisible as well
 			GetMesh()->SetVisibility(true, true);
 
 			// Reset the third person mesh
