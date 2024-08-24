@@ -301,6 +301,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetDipAlpha() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetADSOffset() const;
+
 	void SetOffsetRootLocationOffset(FVector NewLocationOffset);
 
 protected:

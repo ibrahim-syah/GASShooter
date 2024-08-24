@@ -1532,6 +1532,11 @@ float AGSHeroCharacter::GetDipAlpha() const
 	return DipAlpha;
 }
 
+FVector AGSHeroCharacter::GetADSOffset() const
+{
+	return CurrentWeapon ? CurrentWeapon->GetADSOffset() : FVector();;
+}
+
 void AGSHeroCharacter::SetOffsetRootLocationOffset(FVector LocationOffset)
 {
 	Offset_Root->SetRelativeLocation(Offset_Root_LocationOffsetBase + LocationOffset);

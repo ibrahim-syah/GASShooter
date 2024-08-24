@@ -416,6 +416,11 @@ AGSGATA_SphereTrace* AGSWeapon::GetSphereTraceTargetActor()
 	return SphereTraceTargetActor;
 }
 
+FVector AGSWeapon::GetADSOffset() const
+{
+	return ADSOffset;
+}
+
 void AGSWeapon::BeginPlay()
 {
 	ResetWeapon();
