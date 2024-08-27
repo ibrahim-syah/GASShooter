@@ -1649,6 +1649,10 @@ void AGSHeroCharacter::UpdateVelocityVars()
 	FVector interpedVec = FMath::VInterpTo(LocationLagPos, ClampedVectorSize, deltaTime, interpSpeed);
 	LocationLagPos = interpedVec;
 
+	FRotator oldRotator = Mesh_Root->GetRelativeRotation();
+	float newRoll = FMath::Lerp(0.f, LocationLagPos.X * 5.f, GetADSAlpha());
+	Mesh_Root->SetRelativeRotation(FRotator(oldRotator.Pitch, oldRotator.Yaw, newRoll));
+
 	interpSpeed = (1.f / deltaTime) / 12.f;
 	FRotator targetRInterp = FRotator((LocationLagPos.Z * -2.f), 0.f, 0.f);
 	FRotator interpedRot = FMath::RInterpTo(InAirTilt, targetRInterp, deltaTime, interpSpeed);
