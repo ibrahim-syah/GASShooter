@@ -330,7 +330,7 @@ void AGSPlayerController::Input_LookMouse(const FInputActionValue& InputActionVa
 	LookScaleModifier *= FMath::Lerp(1.f, ADSSensitivityScale, HeroCharacter->GetADSAlpha());
 	const FVector2D Value = InputActionValue.Get<FVector2D>() * LookScaleModifier;
 
-	// Supposedly, these last three frames average would help smooth out the look control.
+	// Supposedly, this "last three frames average" would help smooth out the look control.
 	// but I can't feel the difference, but idk i'll keep using it until someone notices.
 
 	/*if (Value.X != 0.0f)
