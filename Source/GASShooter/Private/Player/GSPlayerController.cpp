@@ -14,6 +14,12 @@
 #include "GameFramework/Pawn.h"
 #include "Weapons/GSWeapon.h"
 
+AGSPlayerController::AGSPlayerController() :
+	RotArrayX { 0.f, 0.f, 0.f },
+	RotArrayY { 0.f, 0.f, 0.f }
+{
+}
+
 void AGSPlayerController::CreateHUD()
 {
 	// Only create once
@@ -324,15 +330,37 @@ void AGSPlayerController::Input_LookMouse(const FInputActionValue& InputActionVa
 	LookScaleModifier *= FMath::Lerp(1.f, ADSSensitivityScale, HeroCharacter->GetADSAlpha());
 	const FVector2D Value = InputActionValue.Get<FVector2D>() * LookScaleModifier;
 
-	if (Value.X != 0.0f)
+	// Supposedly, these last three frames average would help smooth out the look control.
+	// but I can't feel the difference, but idk i'll keep using it until someone notices.
+
+	/*if (Value.X != 0.0f)
 	{
 		HeroCharacter->AddControllerYawInput(Value.X);
-	}
+	}*/
 
-	if (Value.Y != 0.0f)
+	RotArrayX[RotCacheIndex] = Value.X;
+	float result = 0.f;
+	for (int i = 0; i < MaxRotCache; i++)
+	{
+		result += RotArrayX[i];
+	}
+	HeroCharacter->AddControllerYawInput(result / MaxRotCache);
+
+	/*if (Value.Y != 0.0f)
 	{
 		HeroCharacter->AddControllerPitchInput(Value.Y);
+	}*/
+
+	RotArrayY[RotCacheIndex] = Value.Y;
+	result = 0.f;
+	for (int i = 0; i < MaxRotCache; i++)
+	{
+		result += RotArrayY[i];
 	}
+	HeroCharacter->AddControllerPitchInput(result / MaxRotCache);
+
+	RotCacheIndex++;
+	RotCacheIndex %= MaxRotCache;
 }
 
 void AGSPlayerController::Input_LookStick(const FInputActionValue& InputActionValue)
