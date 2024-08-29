@@ -550,7 +550,7 @@ protected:
 	void ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg);
 	FVector PrevHandLoc;
 	FVector CamOffset;
-	float CamStrength{ 25.f };
+	float CamStrength{ 50.f };
 	FVector CamOffsetCurrent;
 	float CamAnimAlpha{ 0.f };
 
