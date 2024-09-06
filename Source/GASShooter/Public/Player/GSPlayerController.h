@@ -21,6 +21,8 @@ class GASSHOOTER_API AGSPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 public:
+	AGSPlayerController();
+
 	void CreateHUD();
 
 	class UGSHUDWidget* GetGSHUD();
@@ -121,6 +123,11 @@ protected:
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+
+	int64 MaxRotCache = 3;
+	float RotArrayX[3];
+	float RotArrayY[3];
+	int64 RotCacheIndex = 0;
 
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);

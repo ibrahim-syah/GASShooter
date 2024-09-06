@@ -173,6 +173,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
 	AGSGATA_SphereTrace* GetSphereTraceTargetActor();
 
+	FVector GetADSOffset() const;
+
 protected:
 	UPROPERTY()
 	UGSAbilitySystemComponent* AbilitySystemComponent;
@@ -222,16 +224,26 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSWeapon")
 	TSubclassOf<UAnimInstance> WeaponAnimLinkLayer3P;
 
+	// How much to offset the viewmodel to align to the center of the camera when adsing
+	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
+	FVector ADSOffset;
+
 	// Relative Location of weapon 3P Mesh when in pickup mode
 	// 1P weapon mesh is invisible so it doesn't need one
 	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FVector WeaponMesh3PickupRelativeLocation;
 
+	// Relative Location Offset of the offset root
+	// This is only necessary because right now, I'm using first person animations from all over around the internet/marketplace
+	// so they are not consistent in how the character hierarchy and viewport location are setup. This offset will fixes that for each weapon
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASShooter|GSWeapon")
+	FVector OffsetRootLocationOffset;
+
 	// Relative Location of weapon 1P Mesh when equipped
-	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASShooter|GSWeapon")
 	FVector WeaponMesh1PEquippedRelativeLocation;
 
-	UPROPERTY(EditDefaultsOnly, Category = "GASShooter|GSWeapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASShooter|GSWeapon")
 	FRotator WeaponMesh1PEquippedRelativeRotation = FRotator{0.f, 0.f, -90.f};
 
 	// Relative Location of weapon 3P Mesh when equipped

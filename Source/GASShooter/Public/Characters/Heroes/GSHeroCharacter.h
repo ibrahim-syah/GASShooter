@@ -301,6 +301,11 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetDipAlpha() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
+	FVector GetADSOffset() const;
+
+	void SetOffsetRootLocationOffset(FVector NewLocationOffset);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|GSHeroCharacter")
 	FVector StartingThirdPersonMeshLocation;
@@ -356,6 +361,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USceneComponent* Offset_Root;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	FVector Offset_Root_LocationOffsetBase;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	USkeletalMeshComponent* FirstPersonMesh;
@@ -542,7 +550,7 @@ protected:
 	void ProcCamAnim(FVector& CamOffsetArg, float& CamAnimAlphaArg);
 	FVector PrevHandLoc;
 	FVector CamOffset;
-	float CamStrength{ 25.f };
+	float CamStrength{ 50.f };
 	FVector CamOffsetCurrent;
 	float CamAnimAlpha{ 0.f };
 
@@ -608,7 +616,7 @@ protected:
 	void CoyoteTimePassed();
 	float CoyoteTime{ 0.35f };
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")
 	void Dip(float Speed = 1.f, float Strength = 1.f);
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation|Jump")

@@ -46,6 +46,7 @@ AGSWeapon::AGSWeapon()
 	WeaponMesh1P->SetVisibility(false, true);
 	WeaponMesh1P->SetupAttachment(CollisionComp);
 	WeaponMesh1P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	WeaponMesh1P->BoundsScale = 2.f;
 
 	WeaponMesh3PickupRelativeLocation = FVector(0.0f, -25.0f, 0.0f);
 
@@ -56,6 +57,7 @@ AGSWeapon::AGSWeapon()
 	WeaponMesh3P->CastShadow = true;
 	WeaponMesh3P->SetVisibility(true, true);
 	WeaponMesh3P->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	WeaponMesh3P->BoundsScale = 2.f;
 
 	WeaponPrimaryInstantAbilityTag = FGameplayTag::RequestGameplayTag("Ability.Weapon.Primary.Instant");
 	WeaponSecondaryInstantAbilityTag = FGameplayTag::RequestGameplayTag("Ability.Weapon.Secondary.Instant");
@@ -155,6 +157,8 @@ void AGSWeapon::Equip()
 		WeaponMesh1P->SetRelativeLocation(WeaponMesh1PEquippedRelativeLocation);
 		WeaponMesh1P->SetRelativeRotation(WeaponMesh1PEquippedRelativeRotation);
 
+		OwningCharacter->SetOffsetRootLocationOffset(OffsetRootLocationOffset);
+
 		if (OwningCharacter->IsInFirstPersonPerspective())
 		{
 			WeaponMesh1P->SetVisibility(true, true);
@@ -206,6 +210,7 @@ void AGSWeapon::UnEquip()
 
 	WeaponMesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	WeaponMesh1P->SetVisibility(false, true);
+	OwningCharacter->SetOffsetRootLocationOffset(FVector(0.f));
 
 	WeaponMesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	WeaponMesh3P->CastShadow = false;
@@ -409,6 +414,11 @@ AGSGATA_SphereTrace* AGSWeapon::GetSphereTraceTargetActor()
 	SphereTraceTargetActor = GetWorld()->SpawnActor<AGSGATA_SphereTrace>();
 	SphereTraceTargetActor->SetOwner(this);
 	return SphereTraceTargetActor;
+}
+
+FVector AGSWeapon::GetADSOffset() const
+{
+	return ADSOffset;
 }
 
 void AGSWeapon::BeginPlay()
