@@ -30,6 +30,11 @@ public:
 	// Sets default values for this actor's properties
 	AGSWeapon();
 
+protected:
+	virtual void Tick(float DeltaTime) override;
+
+public:
+
 	// Whether or not to spawn this weapon with collision enabled (pickup mode).
 	// Set to false when spawning directly into a player's inventory or true when spawning into the world in pickup mode.
 	UPROPERTY(BlueprintReadWrite)
@@ -59,6 +64,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleInstanceOnly, Category = "GASShooter|GSWeapon")
 	FGameplayTag FireMode;
+	FGameplayTag FullAutoFireMode;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FGameplayTag PrimaryAmmoType;
@@ -87,8 +93,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSWeapon")
 	virtual USkeletalMeshComponent* GetWeaponMesh1P() const;
-
-	float GetSightForwardLength() const { return Sight_ForwardLength; };
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSWeapon")
 	virtual USkeletalMeshComponent* GetWeaponMesh3P() const;
@@ -212,8 +216,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "GASShooter|GSWeapon")
 	USkeletalMeshComponent* WeaponMesh1P;
 
-	UPROPERTY(EditAnywhere, Category = "GASShooter|GSWeapon")
-	float Sight_ForwardLength{ 30.f };
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSWeapon")
 	TSubclassOf<UAnimInstance> WeaponAnimLinkLayer1P;
@@ -302,4 +304,67 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_MaxSecondaryClipAmmo(int32 OldMaxSecondaryClipAmmo);
+
+
+	/////////////////////////////////// Destiny-like Recoil
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	float SampleRecoilDirection(float x);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|Recoil") // might want to make this a part of attribute set?
+	float RecoilStat = 70.f;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void StartRecoil();
+	bool bIsRecoilActive;
+
+	UPROPERTY(EditAnywhere)
+	float BaseRecoilPitchForce = 8.f;
+	float InitialRecoilPitchForce;
+	float RecoilPitchDamping;
+	float RecoilPitchVelocity;
+
+	UPROPERTY(EditAnywhere)
+	float BaseRecoilYawForce = 8.f;
+	float InitialRecoilYawForce;
+	float RecoilYawDamping;
+	float RecoilYawVelocity;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void StartRecoilRecovery();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float MaxBloom = 10.f;
+	float MinBloom = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float BloomStep = 0.5f;
+	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float InitialHipfireBloom = 5.f;
+	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float CurrentBloom = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float ADSBloomModifier = 0.5f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float BloomRecoveryInterpSpeed = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float MaxADSHeat = 10.f;
+	float CurrentADSHeat = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|Recoil")
+	float ADSHeatModifierMax = 0.6;
+
+public:
+	bool bIsRecoilPitchRecoveryActive;
+	bool bIsRecoilYawRecoveryActive;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	bool bIsRecoilNeutral = true;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	bool bUpdateRecoilPitchCheckpointInNextShot = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	bool bUpdateRecoilYawCheckpointInNextShot = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	FRotator RecoilCheckpoint;
 };

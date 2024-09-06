@@ -1507,16 +1507,6 @@ float AGSHeroCharacter::GetADSAlphaLerp() const
 	return ADSAlphaLerp;
 }
 
-FTransform AGSHeroCharacter::GetSightTransform() const
-{
-	return SightTransform;
-}
-
-FTransform AGSHeroCharacter::GetRelativeHandTransform() const
-{
-	return RelativeHandTransform;
-}
-
 float AGSHeroCharacter::GetHasWeaponAlpha() const
 {
 	return CurrentWeapon ? 1.f : 0.f;
@@ -1576,23 +1566,6 @@ void AGSHeroCharacter::WalkRollTLCallback(float val)
 
 void AGSHeroCharacter::WalkTLUpdateEvent()
 {
-	if (CurrentWeapon)
-	{
-		// Set SightTransform
-		const FTransform cameraWorldTransform = FirstPersonCamera->GetComponentTransform();
-		const FTransform mesh1pWorldTransform = FirstPersonMesh->GetComponentTransform();
-
-		const FTransform relativeTransform = UKismetMathLibrary::MakeRelativeTransform(cameraWorldTransform, mesh1pWorldTransform);
-
-		SightTransform.SetLocation(relativeTransform.GetLocation() + relativeTransform.GetRotation().GetForwardVector() * CurrentWeapon->GetSightForwardLength());
-		SightTransform.SetRotation(relativeTransform.Rotator().Quaternion());
-
-		// Set RelativeHandTransform
-		RelativeHandTransform = UKismetMathLibrary::MakeRelativeTransform(
-			CurrentWeapon->GetWeaponMesh1P()->GetSocketTransform("sight"),
-			FirstPersonMesh->GetSocketTransform("hand_r")
-		);
-	}
 
 
 	// update walk anim position

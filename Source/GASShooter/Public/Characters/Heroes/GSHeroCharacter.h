@@ -287,12 +287,6 @@ public:
 	float GetADSAlphaLerp() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
-	FTransform GetSightTransform() const;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
-	FTransform GetRelativeHandTransform() const;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
 	float GetHasWeaponAlpha() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSHeroCharacter|Procedural FP Animation")
