@@ -6,6 +6,7 @@
 #include "Characters/Abilities/GSAbilitySystemGlobals.h"
 #include "Characters/Abilities/GSGameplayAbility.h"
 #include "Characters/Abilities/GSGATA_LineTrace.h"
+#include "Characters/Abilities/GSGATA_LineTraceWithBloom.h"
 #include "Characters/Abilities/GSGATA_SphereTrace.h"
 #include "Characters/Heroes/GSHeroCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -133,10 +134,10 @@ void AGSWeapon::Tick(float DeltaTime)
 		}
 	}
 
-	if (CurrentBloom > MinBloom)
+	if (CurrentTargetingSpread > 0.f)
 	{
-		float interpSpeed = (1.f / DeltaTime) / BloomRecoveryInterpSpeed;
-		CurrentBloom = FMath::FInterpConstantTo(CurrentBloom, MinBloom, DeltaTime, interpSpeed);
+		float interpSpeed = (1.f / DeltaTime) / SpreadRecoveryInterpSpeed;
+		CurrentTargetingSpread = FMath::FInterpConstantTo(CurrentTargetingSpread, 0.f, DeltaTime, interpSpeed);
 	}
 }
 
@@ -473,6 +474,18 @@ AGSGATA_LineTrace* AGSWeapon::GetLineTraceTargetActor()
 	return LineTraceTargetActor;
 }
 
+AGSGATA_LineTraceWithBloom* AGSWeapon::GetLineTraceWithBloomTargetActor()
+{
+	if (LineTraceWithBloomTargetActor)
+	{
+		return LineTraceWithBloomTargetActor;
+	}
+
+	LineTraceWithBloomTargetActor = GetWorld()->SpawnActor<AGSGATA_LineTraceWithBloom>();
+	LineTraceWithBloomTargetActor->SetOwner(this);
+	return LineTraceWithBloomTargetActor;
+}
+
 AGSGATA_SphereTrace* AGSWeapon::GetSphereTraceTargetActor()
 {
 	if (SphereTraceTargetActor)
@@ -592,4 +605,16 @@ void AGSWeapon::StartRecoilRecovery()
 {
 	bIsRecoilPitchRecoveryActive = true;
 	bIsRecoilYawRecoveryActive = true;
+}
+
+void AGSWeapon::IncrementSpread()
+{
+	float maxSpread = FMath::Lerp(TargetingSpreadMax, TargetingSpreadMaxADS, OwningCharacter->GetADSAlpha());
+	float spreadIncrement = FMath::Lerp(TargetingSpreadIncrement, TargetingSpreadIncrement * SpreadIncrementADSMod, OwningCharacter->GetADSAlpha());
+	CurrentTargetingSpread = FMath::Min(maxSpread, CurrentTargetingSpread + spreadIncrement);
+}
+
+float AGSWeapon::GetCurrentSpread() const
+{
+	return BaseSpread + CurrentTargetingSpread - FMath::Lerp(0.f, BaseSpread, OwningCharacter->GetADSAlpha());
 }

@@ -13,6 +13,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponAmmoChangedDelegate, int32, OldValue, int32, NewValue);
 
 class AGSGATA_LineTrace;
+class AGSGATA_LineTraceWithBloom;
 class AGSGATA_SphereTrace;
 class AGSHeroCharacter;
 class UAnimMontage;
@@ -173,6 +174,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
 	AGSGATA_LineTrace* GetLineTraceTargetActor();
 
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
+	AGSGATA_LineTraceWithBloom* GetLineTraceWithBloomTargetActor();
+
 	// Getter for SphereTraceTargetActor. Spawns it if it doesn't exist yet.
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
 	AGSGATA_SphereTrace* GetSphereTraceTargetActor();
@@ -205,6 +209,9 @@ protected:
 
 	UPROPERTY()
 	AGSGATA_LineTrace* LineTraceTargetActor;
+
+	UPROPERTY()
+	AGSGATA_LineTraceWithBloom* LineTraceWithBloomTargetActor;
 
 	UPROPERTY()
 	AGSGATA_SphereTrace* SphereTraceTargetActor;
@@ -333,18 +340,21 @@ protected:
 	void StartRecoilRecovery();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
-	float MaxBloom = 10.f;
-	float MinBloom = 0.f;
+	float TargetingSpreadMax = 5.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
-	float BloomStep = 0.5f;
+	float TargetingSpreadMaxADS = 2.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float TargetingSpreadIncrement = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float BaseSpread = 1.f;
 	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Recoil")
-	float InitialHipfireBloom = 5.f;
-	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Recoil")
-	float CurrentBloom = 0.f;
+	float CurrentTargetingSpread = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
-	float ADSBloomModifier = 0.5f;
+	float SpreadIncrementADSMod = 0.5f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
-	float BloomRecoveryInterpSpeed = 20.f;
+	float SpreadRecoveryInterpSpeed = 20.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	//float SpreadRecoveryInterpSpeedAiming = 35.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
 	float MaxADSHeat = 10.f;
@@ -367,4 +377,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
 	FRotator RecoilCheckpoint;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void IncrementSpread();
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	float GetCurrentSpread() const;
 };
