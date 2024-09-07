@@ -13,6 +13,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponAmmoChangedDelegate, int32, OldValue, int32, NewValue);
 
 class AGSGATA_LineTrace;
+class AGSGATA_LineTraceWithBloom;
 class AGSGATA_SphereTrace;
 class AGSHeroCharacter;
 class UAnimMontage;
@@ -29,6 +30,11 @@ class GASSHOOTER_API AGSWeapon : public AActor, public IAbilitySystemInterface
 public:	
 	// Sets default values for this actor's properties
 	AGSWeapon();
+
+protected:
+	virtual void Tick(float DeltaTime) override;
+
+public:
 
 	// Whether or not to spawn this weapon with collision enabled (pickup mode).
 	// Set to false when spawning directly into a player's inventory or true when spawning into the world in pickup mode.
@@ -59,6 +65,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleInstanceOnly, Category = "GASShooter|GSWeapon")
 	FGameplayTag FireMode;
+	FGameplayTag FullAutoFireMode;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GASShooter|GSWeapon")
 	FGameplayTag PrimaryAmmoType;
@@ -87,8 +94,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSWeapon")
 	virtual USkeletalMeshComponent* GetWeaponMesh1P() const;
-
-	float GetSightForwardLength() const { return Sight_ForwardLength; };
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "GASShooter|GSWeapon")
 	virtual USkeletalMeshComponent* GetWeaponMesh3P() const;
@@ -169,6 +174,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
 	AGSGATA_LineTrace* GetLineTraceTargetActor();
 
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
+	AGSGATA_LineTraceWithBloom* GetLineTraceWithBloomTargetActor();
+
 	// Getter for SphereTraceTargetActor. Spawns it if it doesn't exist yet.
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|Targeting")
 	AGSGATA_SphereTrace* GetSphereTraceTargetActor();
@@ -203,6 +211,9 @@ protected:
 	AGSGATA_LineTrace* LineTraceTargetActor;
 
 	UPROPERTY()
+	AGSGATA_LineTraceWithBloom* LineTraceWithBloomTargetActor;
+
+	UPROPERTY()
 	AGSGATA_SphereTrace* SphereTraceTargetActor;
 
 	// Collision capsule for when weapon is in pickup mode
@@ -212,8 +223,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "GASShooter|GSWeapon")
 	USkeletalMeshComponent* WeaponMesh1P;
 
-	UPROPERTY(EditAnywhere, Category = "GASShooter|GSWeapon")
-	float Sight_ForwardLength{ 30.f };
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASShooter|GSWeapon")
 	TSubclassOf<UAnimInstance> WeaponAnimLinkLayer1P;
@@ -302,4 +311,83 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_MaxSecondaryClipAmmo(int32 OldMaxSecondaryClipAmmo);
+
+
+	/////////////////////////////////// Destiny-like Recoil
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	float SampleRecoilDirection(float x);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|Recoil") // might want to make this a part of attribute set?
+	float RecoilStat = 70.f;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void StartRecoil();
+	bool bIsRecoilActive;
+
+	UPROPERTY(EditAnywhere)
+	float BaseRecoilPitchForce = 8.f;
+	float InitialRecoilPitchForce;
+	float RecoilPitchDamping;
+	float RecoilPitchVelocity;
+
+	UPROPERTY(EditAnywhere)
+	float BaseRecoilYawForce = 8.f;
+	float InitialRecoilYawForce;
+	float RecoilYawDamping;
+	float RecoilYawVelocity;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void StartRecoilRecovery();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float TargetingSpreadMax = 5.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float TargetingSpreadMaxADS = 2.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float TargetingSpreadIncrement = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float BaseSpread = 1.f;
+	UPROPERTY(BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float CurrentTargetingSpread = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float SpreadIncrementADSMod = 0.5f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	float SpreadRecoveryInterpSpeed = 20.f;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	//float SpreadRecoveryInterpSpeedAiming = 35.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	bool bIsUseADSStabilizer = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil", meta=(EditCondition="bIsUseADSStabilizer"))
+	float MaxADSHeat = 10.f;
+	float CurrentADSHeat = 0.f;
+
+	// When the heat value reaches its peak, this value (0 - 100 percent) is the amount to reduce the recoil
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|Recoil", meta = (EditCondition = "bIsUseADSStabilizer"))
+	float ADSHeatModifierMax = 0.75;
+
+public:
+	bool bIsRecoilPitchRecoveryActive;
+	bool bIsRecoilYawRecoveryActive;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	bool bIsRecoilNeutral = true;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	bool bUpdateRecoilPitchCheckpointInNextShot = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	bool bUpdateRecoilYawCheckpointInNextShot = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "GASShooter|Recoil")
+	FRotator RecoilCheckpoint;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void IncrementSpread();
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	float GetCurrentSpread() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void ResetADSHeat();
 };

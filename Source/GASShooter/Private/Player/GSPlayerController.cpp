@@ -361,6 +361,38 @@ void AGSPlayerController::Input_LookMouse(const FInputActionValue& InputActionVa
 
 	RotCacheIndex++;
 	RotCacheIndex %= MaxRotCache;
+
+	AGSWeapon* currentWeapon = HeroCharacter->GetCurrentWeapon();
+	if (currentWeapon && currentWeapon->bIsRecoilPitchRecoveryActive)
+	{
+		FRotator currentRotation = GetControlRotation();
+		FRotator checkpointRotation = currentWeapon->RecoilCheckpoint;
+
+		FRotator deltaRot = (currentRotation - checkpointRotation).GetNormalized();
+
+		if (Value.Y < 0.f)
+		{
+			currentWeapon->bIsRecoilPitchRecoveryActive = false;
+			currentWeapon->bIsRecoilNeutral = true;
+			return;
+		}
+
+		if (deltaRot.Pitch < 0.f)
+		{
+			currentWeapon->bUpdateRecoilPitchCheckpointInNextShot = true;
+		}
+
+		if (Value.X != 0.f)
+		{
+			if (currentWeapon->bIsRecoilYawRecoveryActive)
+			{
+				currentWeapon->bIsRecoilYawRecoveryActive = false;
+			}
+
+			currentWeapon->bUpdateRecoilYawCheckpointInNextShot = true;
+		}
+
+	}
 }
 
 void AGSPlayerController::Input_LookStick(const FInputActionValue& InputActionValue)

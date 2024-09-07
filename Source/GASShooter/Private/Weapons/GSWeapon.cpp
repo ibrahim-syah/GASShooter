@@ -6,6 +6,7 @@
 #include "Characters/Abilities/GSAbilitySystemGlobals.h"
 #include "Characters/Abilities/GSGameplayAbility.h"
 #include "Characters/Abilities/GSGATA_LineTrace.h"
+#include "Characters/Abilities/GSGATA_LineTraceWithBloom.h"
 #include "Characters/Abilities/GSGATA_SphereTrace.h"
 #include "Characters/Heroes/GSHeroCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -13,12 +14,12 @@
 #include "GSBlueprintFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/GSPlayerController.h"
+#include <random>
 
 // Sets default values
 AGSWeapon::AGSWeapon()
 {
- 	// Set this actor to never tick
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
 	bNetUseOwnerRelevancy = true;
@@ -65,10 +66,79 @@ AGSWeapon::AGSWeapon()
 	WeaponIsFiringTag = FGameplayTag::RequestGameplayTag("Weapon.IsFiring");
 
 	FireMode = FGameplayTag::RequestGameplayTag("Weapon.FireMode.None");
+	FullAutoFireMode = FGameplayTag::RequestGameplayTag("Weapon.FireMode.Complete.FullAuto");
 	StatusText = DefaultStatusText;
 
 	RestrictedPickupTags.AddTag(FGameplayTag::RequestGameplayTag("State.Dead"));
 	RestrictedPickupTags.AddTag(FGameplayTag::RequestGameplayTag("State.KnockedDown"));
+}
+
+void AGSWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!IsValid(OwningCharacter) || !IsValid(OwningCharacter->GetController()))
+	{
+		return;
+	}
+
+	if (bIsRecoilActive)
+	{
+		OwningCharacter->AddControllerPitchInput(RecoilPitchVelocity * -1.f * DeltaTime);
+		OwningCharacter->AddControllerYawInput(RecoilYawVelocity * DeltaTime);
+
+		RecoilPitchVelocity -= RecoilPitchDamping * DeltaTime;
+		RecoilYawVelocity -= RecoilYawDamping * DeltaTime;
+
+		if (RecoilPitchVelocity <= 0.0f)
+		{
+			bIsRecoilActive = false;
+			StartRecoilRecovery();
+		}
+	}
+	else if (bIsRecoilPitchRecoveryActive)
+	{
+		FRotator currentControlRotation = OwningCharacter->GetControlRotation();
+
+		FRotator deltaRot = currentControlRotation - RecoilCheckpoint;
+		deltaRot.Normalize();
+
+		if (deltaRot.Pitch > 1.f)
+		{
+			float interpSpeed = (1.f / DeltaTime) / 4.f;
+			FRotator interpRot = FMath::RInterpConstantTo(currentControlRotation, RecoilCheckpoint, DeltaTime, interpSpeed);
+			interpSpeed = (1.f / DeltaTime) / 10.f; // TODO: figure out how to make dynamic yaw recovery speed that depends on the pitch distance so that the pitch and yaw recovery ands together smoothly
+			interpRot.Yaw = FMath::RInterpTo(currentControlRotation, RecoilCheckpoint, DeltaTime, interpSpeed).Yaw;
+			if (!bIsRecoilYawRecoveryActive)
+			{
+				interpRot.Yaw = currentControlRotation.Yaw;
+			}
+
+			OwningCharacter->GetController()->SetControlRotation(interpRot);
+		}
+		else if (deltaRot.Pitch > 0.1f)
+		{
+			float interpSpeed = (1.f / DeltaTime) / 6.f;
+			FRotator interpRot = FMath::RInterpTo(currentControlRotation, RecoilCheckpoint, DeltaTime, interpSpeed);
+			if (!bIsRecoilYawRecoveryActive)
+			{
+				interpRot.Yaw = currentControlRotation.Yaw;
+			}
+			OwningCharacter->GetController()->SetControlRotation(interpRot);
+		}
+		else
+		{
+			bIsRecoilPitchRecoveryActive = false;
+			bIsRecoilYawRecoveryActive = false;
+			bIsRecoilNeutral = true;
+		}
+	}
+
+	if (CurrentTargetingSpread > 0.f)
+	{
+		float interpSpeed = (1.f / DeltaTime) / SpreadRecoveryInterpSpeed;
+		CurrentTargetingSpread = FMath::FInterpConstantTo(CurrentTargetingSpread, 0.f, DeltaTime, interpSpeed);
+	}
 }
 
 UAbilitySystemComponent* AGSWeapon::GetAbilitySystemComponent() const
@@ -404,6 +474,18 @@ AGSGATA_LineTrace* AGSWeapon::GetLineTraceTargetActor()
 	return LineTraceTargetActor;
 }
 
+AGSGATA_LineTraceWithBloom* AGSWeapon::GetLineTraceWithBloomTargetActor()
+{
+	if (LineTraceWithBloomTargetActor)
+	{
+		return LineTraceWithBloomTargetActor;
+	}
+
+	LineTraceWithBloomTargetActor = GetWorld()->SpawnActor<AGSGATA_LineTraceWithBloom>();
+	LineTraceWithBloomTargetActor->SetOwner(this);
+	return LineTraceWithBloomTargetActor;
+}
+
 AGSGATA_SphereTrace* AGSWeapon::GetSphereTraceTargetActor()
 {
 	if (SphereTraceTargetActor)
@@ -482,4 +564,62 @@ void AGSWeapon::OnRep_SecondaryClipAmmo(int32 OldSecondaryClipAmmo)
 void AGSWeapon::OnRep_MaxSecondaryClipAmmo(int32 OldMaxSecondaryClipAmmo)
 {
 	OnMaxSecondaryClipAmmoChanged.Broadcast(OldMaxSecondaryClipAmmo, MaxSecondaryClipAmmo);
+}
+
+float AGSWeapon::SampleRecoilDirection(float x)
+{
+	// is it better to use a curve asset or just sample it directly from the function? idk man
+	return FMath::Sin((x + 5.f) * (2.f * PI / 20.f)) * (100.f - x);
+}
+
+void AGSWeapon::StartRecoil()
+{
+	InitialRecoilPitchForce = BaseRecoilPitchForce;
+	InitialRecoilYawForce = BaseRecoilYawForce;
+
+	if (bIsUseADSStabilizer && FireMode == FullAutoFireMode)
+	{
+		CurrentADSHeat = OwningCharacter->GetADSAlpha() > 0.f ? CurrentADSHeat + 1.f : 0.f;
+		float ADSHeatModifier = FMath::Clamp(CurrentADSHeat / MaxADSHeat, 0.f, ADSHeatModifierMax);
+		InitialRecoilPitchForce *= 1.f - ADSHeatModifier;
+		InitialRecoilYawForce *= 1.f - ADSHeatModifier;
+	}
+
+	RecoilPitchVelocity = InitialRecoilPitchForce;
+	RecoilPitchDamping = RecoilPitchVelocity / 0.1f;
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	float directionStat = SampleRecoilDirection(RecoilStat);
+	float directionScaleModifier = directionStat / 100.f;
+	float stddev = InitialRecoilYawForce * (1.f - RecoilStat / 100.f);
+
+	std::normal_distribution<float> d(InitialRecoilYawForce * directionScaleModifier, stddev);
+	RecoilYawVelocity = d(gen);
+	RecoilYawDamping = (RecoilYawVelocity * -1.f) / 0.1f;
+
+	bIsRecoilActive = true;
+}
+
+void AGSWeapon::StartRecoilRecovery()
+{
+	bIsRecoilPitchRecoveryActive = true;
+	bIsRecoilYawRecoveryActive = true;
+}
+
+void AGSWeapon::IncrementSpread()
+{
+	float maxSpread = FMath::Lerp(TargetingSpreadMax, TargetingSpreadMaxADS, OwningCharacter->GetADSAlpha());
+	float spreadIncrement = FMath::Lerp(TargetingSpreadIncrement, TargetingSpreadIncrement * SpreadIncrementADSMod, OwningCharacter->GetADSAlpha());
+	CurrentTargetingSpread = FMath::Min(maxSpread, CurrentTargetingSpread + spreadIncrement);
+}
+
+float AGSWeapon::GetCurrentSpread() const
+{
+	return BaseSpread + CurrentTargetingSpread - FMath::Lerp(0.f, BaseSpread, OwningCharacter->GetADSAlpha());
+}
+
+void AGSWeapon::ResetADSHeat()
+{
+	CurrentADSHeat = 0.f;
 }
