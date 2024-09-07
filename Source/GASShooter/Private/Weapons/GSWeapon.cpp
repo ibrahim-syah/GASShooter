@@ -618,3 +618,8 @@ float AGSWeapon::GetCurrentSpread() const
 {
 	return BaseSpread + CurrentTargetingSpread - FMath::Lerp(0.f, BaseSpread, OwningCharacter->GetADSAlpha());
 }
+
+void AGSWeapon::ResetADSHeat()
+{
+	CurrentADSHeat = 0.f;
+}

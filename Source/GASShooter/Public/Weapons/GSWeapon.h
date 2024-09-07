@@ -387,4 +387,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
 	float GetCurrentSpread() const;
+
+	UFUNCTION(BlueprintCallable, Category = "GASShooter|Recoil")
+	void ResetADSHeat();
 };
