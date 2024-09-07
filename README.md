@@ -1,11 +1,27 @@
 # GASShooter
+This is a fork of [this](https://github.com/shadowfinderstudios/GASShooter) repo which itself is a fork of [this](https://github.com/tranek/GASShooter) repo. I couldn't fork off of it directly because of github LFS or something idk.
 
 ## Additions by Ibrahim:
-* Use Lyra's AnimBP for easier gameplay tag binding for animation
+I just modded here and there while I'm learning Unreal Engine. The original [author](https://github.com/tranek) has made a really good base for a shooter game, so I decided to start from here.
+My understanding of GAS and Multiplayer/Networking/Replication is still very little, my main objective at the moment is too see if I could have decent base for a generic shooter game.
 
-### Assets used:
-* Lyra's Mannequin, mannequin animations, weapons, weapon metasounds, weapon niagara FX
-* SneakyKittyGameDev's Red Dot Sight from Procedural Aiming Tutorial
+Below are the assets and tutorial I used. All the assets used in this project are freely available from the internet, this project is meant for educational purpose only. 
+All credits belong to their respected creator (idk how to write disclaimer or licences or anything, so if you are one of the authors
+and aren't comfortable with your work being distributed here, feel free to let me know so I can remove this repo).
+
+- [Lyra](https://www.unrealengine.com/marketplace/en-US/product/lyra) Art Assets (Weapon mesh, animations, SFX, VFX)
+- [Octahedron](https://www.youtube.com/playlist?list=PLxYB4IVFm8q6tf3boC1Nm4A8AB2RMCpXn) Procedural FP Animation System, Cannon FP Animations and Cannon Scope Sight, Footstep, Jump, and Land SFX
+- [ALAN_Dev](https://www.youtube.com/watch?v=4ss29yFcAZc) Radial Damage Indicator
+- [UntitledProjectX](https://www.youtube.com/watch?v=pmIRS8C_tFU) Hit Marker and Kill Marker
+- [Jonatan Isaksson](https://www.youtube.com/watch?v=8sP71Y0K6uU&t=623s) Dynamic Healthbar
+- [SneakyKittyGameDev](https://www.youtube.com/playlist?list=PLnHeglBaPYu--A7jTjNrgWdmYkR_kpZYu) Reflex Sight Asset
+- [ArtofSith](https://www.artofsith.com/dynamic-reticles) Dynamic Reticles
+- [TastyTony](https://sketchfab.com/TastyTony/collections) AssaultRifle and RSh-12 Models
+- [Kenney](https://kenney.nl/) Crosshair and Skull Sprite
+- [bulletmunchr](https://www.youtube.com/watch?v=q6DN0geJjkM&t=288s) Parallax Crosshair
+- [Ramsterz](https://www.youtube.com/watch?v=UORC3YjlbZQ) Takedown Animation
+- [Mixamo](https://www.mixamo.com/#/) Dizzy and Knocked Down Animation
+- [Infima Games](https://infimagames.gumroad.com/l/fps-tutorial-source-files?layout=profile) Assault Rifle FP Animation (from the free UE5 FPS Tutorial)
 
 ## Fixes by Shadowfinder
 
