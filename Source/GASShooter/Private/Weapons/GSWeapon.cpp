@@ -66,7 +66,7 @@ AGSWeapon::AGSWeapon()
 	WeaponIsFiringTag = FGameplayTag::RequestGameplayTag("Weapon.IsFiring");
 
 	FireMode = FGameplayTag::RequestGameplayTag("Weapon.FireMode.None");
-	FullAutoFireMode = FGameplayTag::RequestGameplayTag("Weapon.FireMode.FullAuto");
+	FullAutoFireMode = FGameplayTag::RequestGameplayTag("Weapon.FireMode.Complete.FullAuto");
 	StatusText = DefaultStatusText;
 
 	RestrictedPickupTags.AddTag(FGameplayTag::RequestGameplayTag("State.Dead"));
@@ -577,7 +577,7 @@ void AGSWeapon::StartRecoil()
 	InitialRecoilPitchForce = BaseRecoilPitchForce;
 	InitialRecoilYawForce = BaseRecoilYawForce;
 
-	if (FireMode == FullAutoFireMode)
+	if (bIsUseADSStabilizer && FireMode == FullAutoFireMode)
 	{
 		CurrentADSHeat = OwningCharacter->GetADSAlpha() > 0.f ? CurrentADSHeat + 1.f : 0.f;
 		float ADSHeatModifier = FMath::Clamp(CurrentADSHeat / MaxADSHeat, 0.f, ADSHeatModifierMax);

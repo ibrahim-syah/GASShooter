@@ -357,10 +357,14 @@ protected:
 	//float SpreadRecoveryInterpSpeedAiming = 35.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil")
+	bool bIsUseADSStabilizer = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GASShooter|Recoil", meta=(EditCondition="bIsUseADSStabilizer"))
 	float MaxADSHeat = 10.f;
 	float CurrentADSHeat = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|Recoil")
-	float ADSHeatModifierMax = 0.6;
+
+	// When the heat value reaches its peak, this value (0 - 100 percent) is the amount to reduce the recoil
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GASShooter|Recoil", meta = (EditCondition = "bIsUseADSStabilizer"))
+	float ADSHeatModifierMax = 0.75;
 
 public:
 	bool bIsRecoilPitchRecoveryActive;
