@@ -11,6 +11,7 @@ UGSGA_CharacterJump::UGSGA_CharacterJump()
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Jump")));
 	ActivationOwnedTags.RemoveTag(FGameplayTag::RequestGameplayTag("Ability.BlocksInteraction"));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag("Ability.CancelsCrouch"));
 }
 
 void UGSGA_CharacterJump::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
