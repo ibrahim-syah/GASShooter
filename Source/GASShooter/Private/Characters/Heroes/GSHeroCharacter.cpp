@@ -257,7 +257,7 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(PrimaryFireAction, ETriggerEvent::Completed, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrimaryFire, false);
 
-		EnhancedInputComponent->BindAction(SecondaryFireAction, ETriggerEvent::Started, this,
+		EnhancedInputComponent->BindAction(SecondaryFireAction, ETriggerEvent::Triggered, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::SecondaryFire, true);
 
 		EnhancedInputComponent->BindAction(SecondaryFireAction, ETriggerEvent::Completed, this,
