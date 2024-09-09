@@ -10,7 +10,7 @@ All credits belong to their respected creator (idk how to write disclaimer or li
 and aren't comfortable with your work being distributed here, feel free to let me know so I can remove this repo).
 
 - [Lyra](https://www.unrealengine.com/marketplace/en-US/product/lyra) Art Assets (Weapon mesh, animations, SFX, VFX)
-- [Octahedron](https://www.youtube.com/playlist?list=PLxYB4IVFm8q6tf3boC1Nm4A8AB2RMCpXn) Procedural FP Animation System, Cannon FP Animations and Cannon Scope Sight, Footstep, Jump, and Land SFX
+- [Octahedron](https://www.youtube.com/playlist?list=PLxYB4IVFm8q6tf3boC1Nm4A8AB2RMCpXn) Procedural FP Animation System, Cannon FP Animations and Cannon Scope Sight
 - [ALAN_Dev](https://www.youtube.com/watch?v=4ss29yFcAZc) Radial Damage Indicator
 - [UntitledProjectX](https://www.youtube.com/watch?v=pmIRS8C_tFU) Hit Marker and Kill Marker
 - [Jonatan Isaksson](https://www.youtube.com/watch?v=8sP71Y0K6uU&t=623s) Dynamic Healthbar
