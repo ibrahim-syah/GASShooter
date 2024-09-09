@@ -251,7 +251,7 @@ void AGSHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(PrimaryFireAction, ETriggerEvent::Started, this,
+		EnhancedInputComponent->BindAction(PrimaryFireAction, ETriggerEvent::Triggered, this,
 			&AGSHeroCharacter::InvokeAbility, EGSAbilityInputID::PrimaryFire, true);
 
 		EnhancedInputComponent->BindAction(PrimaryFireAction, ETriggerEvent::Completed, this,
