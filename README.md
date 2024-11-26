@@ -1,5 +1,5 @@
 # GASShooter
-This is a fork of [this](https://github.com/shadowfinderstudios/GASShooter) repo which itself is a fork of [this](https://github.com/tranek/GASShooter) repo. I couldn't fork off of it directly because of github LFS or something idk.
+A quick demo can be seen [here](https://www.youtube.com/watch?v=9B3xvSZDy5c&t=33s). This is a fork of [this](https://github.com/shadowfinderstudios/GASShooter) repo which itself is a fork of [this](https://github.com/tranek/GASShooter) repo. I couldn't fork off of it directly because of github LFS or something idk.
 
 ## Additions by Ibrahim:
 I just modded here and there while I'm learning Unreal Engine. The original [author](https://github.com/tranek) has made a really good base for a shooter game, so I decided to start from here.
